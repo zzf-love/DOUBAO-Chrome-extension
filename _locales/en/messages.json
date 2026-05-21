@@ -1,0 +1,22 @@
+{
+  "appName": {
+    "message": "AI Screenshot Explainer",
+    "description": "Extension display name shown in toolbar, popup, store listing."
+  },
+  "appDesc": {
+    "message": "Alt+S to drag-select any area on a webpage; Doubao multimodal AI explains the screenshot in a floating panel.",
+    "description": "Extension description shown in the store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "AI Screenshot Explainer — Settings",
+    "description": "Tooltip shown on the toolbar icon."
+  },
+  "contextMenuTitle": {
+    "message": "Explain this region with AI",
+    "description": "Right-click menu entry."
+  },
+  "commandDesc": {
+    "message": "Start region selection for AI explanation",
+    "description": "Keyboard shortcut description."
+  }
+}

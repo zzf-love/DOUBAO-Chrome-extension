@@ -121,7 +121,7 @@ chrome.action.onClicked.addListener((tab) => {
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "ai-explain-capture",
-    title: "用 AI 解读这块区域",
+    title: chrome.i18n.getMessage("contextMenuTitle") || "用 AI 解读这块区域",
     contexts: ["page", "selection", "image"]
   });
 });

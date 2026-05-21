@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "AI Screenshot Explainer",
-  "version": "1.1.2",
-  "description": "Alt+S to drag-select any area on a webpage; Doubao multimodal AI explains the screenshot in a floating panel.",
+  "default_locale": "zh_CN",
+  "name": "__MSG_appName__",
+  "version": "1.2.0",
+  "description": "__MSG_appDesc__",
   "author": "zzf-love",
   "homepage_url": "https://github.com/zzf-love/DOUBAO-Chrome-extension",
   "icons": {
@@ -25,29 +26,20 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "AI Screenshot Explainer — 设置",
+    "default_title": "__MSG_actionTitle__",
     "default_icon": {
       "16":  "icons/icon16.png",
       "48":  "icons/icon48.png",
       "128": "icons/icon128.png"
     }
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["content.css"],
-      "run_at": "document_idle",
-      "all_frames": false
-    }
-  ],
   "commands": {
     "start-capture": {
       "suggested_key": {
         "default": "Alt+S",
         "mac": "Alt+S"
       },
-      "description": "开始框选区域并交给 AI 解读"
+      "description": "__MSG_commandDesc__"
     }
   }
 }

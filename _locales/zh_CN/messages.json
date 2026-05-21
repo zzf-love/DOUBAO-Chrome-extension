@@ -1,0 +1,22 @@
+{
+  "appName": {
+    "message": "AI 截图解读",
+    "description": "Extension display name shown in toolbar, popup, store listing."
+  },
+  "appDesc": {
+    "message": "按 Alt+S 框选网页任意区域，豆包多模态 AI 自动解读截图内容，结果在浮动面板。",
+    "description": "Extension description shown in the store and chrome://extensions."
+  },
+  "actionTitle": {
+    "message": "AI 截图解读 — 设置",
+    "description": "Tooltip shown on the toolbar icon."
+  },
+  "contextMenuTitle": {
+    "message": "用 AI 解读这块区域",
+    "description": "Right-click menu entry."
+  },
+  "commandDesc": {
+    "message": "开始框选区域并交给 AI 解读",
+    "description": "Keyboard shortcut description."
+  }
+}
