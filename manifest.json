@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AI Screenshot Explainer",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Press Alt+S to drag-select any area on a webpage. The Doubao multimodal AI explains the content in a floating panel — without interrupting your browsing.",
   "author": "zzf-love",
   "homepage_url": "https://github.com/zzf-love/DOUBAO-Chrome-extension",

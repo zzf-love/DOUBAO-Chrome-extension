@@ -77,6 +77,7 @@
   justify-content: center;
 }
 .aie-btn:hover { background: rgba(255,255,255,0.32); }
+.aie-btn.aie-close { width: 48px; }
 
 .aie-panel-body {
   padding: 10px;
