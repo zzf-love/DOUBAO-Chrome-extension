@@ -1,0 +1,130 @@
+const DEFAULT_ENDPOINT = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+const DEFAULT_MODEL = "doubao-1-5-vision-pro-32k-250115";
+const DEFAULT_PROMPT = "请用简体中文解析这张截图里的内容。如果是文字，请先把可见文字完整转录出来（保留结构），再用一段话解释其含义、出处或背景。如果是图表/界面/代码，请说明它在表达什么。回答要准确、简洁，避免空话。";
+
+async function getConfig() {
+  const data = await chrome.storage.local.get(["apiKey", "endpoint", "model", "prompt"]);
+  return {
+    apiKey: data.apiKey || "ark-b0265774-456b-411f-b1a6-7df9e4e7f596-3fc31",
+    endpoint: data.endpoint || DEFAULT_ENDPOINT,
+    model: data.model || DEFAULT_MODEL,
+    prompt: data.prompt || DEFAULT_PROMPT
+  };
+}
+
+async function captureVisibleTab(windowId) {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.captureVisibleTab(windowId, { format: "png" }, (dataUrl) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+      } else {
+        resolve(dataUrl);
+      }
+    });
+  });
+}
+
+async function callDoubao(imageDataUrl, userPrompt) {
+  const cfg = await getConfig();
+  if (!cfg.apiKey) throw new Error("未配置 API Key，请在扩展弹窗里填写。");
+
+  const body = {
+    model: cfg.model,
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "image_url", image_url: { url: imageDataUrl } },
+          { type: "text", text: userPrompt || cfg.prompt }
+        ]
+      }
+    ],
+    stream: false,
+    temperature: 0.3
+  };
+
+  const resp = await fetch(cfg.endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${cfg.apiKey}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  const text = await resp.text();
+  if (!resp.ok) {
+    throw new Error(`API ${resp.status}: ${text.slice(0, 500)}`);
+  }
+  let json;
+  try { json = JSON.parse(text); } catch { throw new Error("API 返回非 JSON: " + text.slice(0, 200)); }
+  const content = json?.choices?.[0]?.message?.content;
+  if (!content) throw new Error("API 返回缺少 content: " + text.slice(0, 200));
+  return typeof content === "string" ? content : JSON.stringify(content);
+}
+
+async function triggerCapture(tab) {
+  if (!tab || !tab.id) return;
+  if (/^(chrome|edge|about|chrome-extension):/.test(tab.url || "")) {
+    return;
+  }
+  try {
+    await chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
+  } catch (e) {
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ["content.js"]
+      });
+      await chrome.scripting.insertCSS({
+        target: { tabId: tab.id },
+        files: ["content.css"]
+      });
+      await chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
+    } catch (err) {
+      console.error("注入失败：", err);
+    }
+  }
+}
+
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command !== "start-capture") return;
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  triggerCapture(tab);
+});
+
+chrome.action.onClicked.addListener((tab) => {
+  triggerCapture(tab);
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "ai-explain-capture",
+    title: "用 AI 解读这块区域",
+    contexts: ["page", "selection", "image"]
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "ai-explain-capture") triggerCapture(tab);
+});
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  (async () => {
+    try {
+      if (msg.type === "CAPTURE_VISIBLE") {
+        const dataUrl = await captureVisibleTab(sender.tab.windowId);
+        sendResponse({ ok: true, dataUrl });
+      } else if (msg.type === "EXPLAIN_IMAGE") {
+        const text = await callDoubao(msg.dataUrl, msg.prompt);
+        sendResponse({ ok: true, text });
+      } else if (msg.type === "GET_CONFIG") {
+        const cfg = await getConfig();
+        sendResponse({ ok: true, cfg });
+      }
+    } catch (e) {
+      sendResponse({ ok: false, error: e.message || String(e) });
+    }
+  })();
+  return true;
+});

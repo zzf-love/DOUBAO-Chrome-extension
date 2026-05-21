@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>AI 截图解读 设置</title>
+  <style>
+    body {
+      font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      width: 340px;
+      margin: 0;
+      padding: 14px;
+      color: #1f2329;
+    }
+    h1 { font-size: 14px; margin: 0 0 10px; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input, textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 6px 8px;
+      border: 1px solid #d0d5dd;
+      border-radius: 6px;
+      font: inherit;
+    }
+    textarea { resize: vertical; min-height: 60px; }
+    .row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+    button {
+      background: linear-gradient(135deg, #4f8cff, #7a5cff);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button.secondary {
+      background: #f2f4f7;
+      color: #1f2329;
+      border: 1px solid #d0d5dd;
+    }
+    .status { color: #16a34a; font-size: 12px; }
+    .muted { color: #6b7280; font-size: 12px; margin-top: 8px; }
+    .kbd {
+      display: inline-block;
+      background: #f2f4f7;
+      border: 1px solid #d0d5dd;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>AI 截图解读（豆包 / 火山方舟）</h1>
+  <div class="muted">
+    使用方式：按 <span class="kbd">Alt + Shift + S</span> 或点击扩展图标，然后用鼠标拖拽框选区域。
+    解析结果会在网页右上角面板里展示，可继续浏览。
+  </div>
+
+  <label for="apiKey">API Key</label>
+  <input id="apiKey" type="password" placeholder="ark-..." />
+
+  <label for="model">模型</label>
+  <input id="model" type="text" placeholder="doubao-1-5-vision-pro-32k-250115" />
+
+  <label for="endpoint">Endpoint</label>
+  <input id="endpoint" type="text" placeholder="https://ark.cn-beijing.volces.com/api/v3/chat/completions" />
+
+  <label for="prompt">默认 Prompt</label>
+  <textarea id="prompt" placeholder="给 AI 的默认指令"></textarea>
+
+  <div class="row">
+    <button id="save">保存</button>
+    <button id="reset" class="secondary">恢复默认</button>
+    <span id="status" class="status"></span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

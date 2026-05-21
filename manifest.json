@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "AI 截图解读 (Doubao)",
+  "version": "1.0.0",
+  "description": "按住快捷键框选网页区域，多模态 AI 自动在浏览器顶部解析内容，不打断浏览。",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "storage",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "https://ark.cn-beijing.volces.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI 截图解读 设置"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "commands": {
+    "start-capture": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "mac": "Alt+Shift+S"
+      },
+      "description": "开始框选区域并交给 AI 解读"
+    }
+  }
+}
