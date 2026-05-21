@@ -1,7 +1,7 @@
 const DEFAULTS = {
   apiKey: "ark-b0265774-456b-411f-b1a6-7df9e4e7f596-3fc31",
-  endpoint: "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
-  model: "doubao-1-5-vision-pro-32k-250115",
+  endpoint: "https://ark.cn-beijing.volces.com/api/v3/responses",
+  model: "doubao-seed-2-0-mini-260428",
   prompt: "请用简体中文解析这张截图里的内容。如果是文字，请先把可见文字完整转录出来（保留结构），再用一段话解释其含义、出处或背景。如果是图表/界面/代码，请说明它在表达什么。回答要准确、简洁，避免空话。"
 };
 

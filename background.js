@@ -1,5 +1,5 @@
-const DEFAULT_ENDPOINT = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
-const DEFAULT_MODEL = "doubao-1-5-vision-pro-32k-250115";
+const DEFAULT_ENDPOINT = "https://ark.cn-beijing.volces.com/api/v3/responses";
+const DEFAULT_MODEL = "doubao-seed-2-0-mini-260428";
 const DEFAULT_PROMPT = "请用简体中文解析这张截图里的内容。如果是文字，请先把可见文字完整转录出来（保留结构），再用一段话解释其含义、出处或背景。如果是图表/界面/代码，请说明它在表达什么。回答要准确、简洁，避免空话。";
 
 async function getConfig() {
@@ -24,23 +24,44 @@ async function captureVisibleTab(windowId) {
   });
 }
 
+function extractResponseText(json) {
+  if (typeof json?.output_text === "string" && json.output_text.length) return json.output_text;
+  const parts = [];
+  const output = json?.output;
+  if (Array.isArray(output)) {
+    for (const item of output) {
+      const content = item?.content;
+      if (Array.isArray(content)) {
+        for (const c of content) {
+          if (typeof c?.text === "string") parts.push(c.text);
+          else if (typeof c?.output_text === "string") parts.push(c.output_text);
+        }
+      } else if (typeof item?.text === "string") {
+        parts.push(item.text);
+      }
+    }
+  }
+  if (parts.length) return parts.join("\n");
+  const fallback = json?.choices?.[0]?.message?.content;
+  if (typeof fallback === "string") return fallback;
+  return "";
+}
+
 async function callDoubao(imageDataUrl, userPrompt) {
   const cfg = await getConfig();
   if (!cfg.apiKey) throw new Error("未配置 API Key，请在扩展弹窗里填写。");
 
   const body = {
     model: cfg.model,
-    messages: [
+    input: [
       {
         role: "user",
         content: [
-          { type: "image_url", image_url: { url: imageDataUrl } },
-          { type: "text", text: userPrompt || cfg.prompt }
+          { type: "input_image", image_url: imageDataUrl },
+          { type: "input_text", text: userPrompt || cfg.prompt }
         ]
       }
-    ],
-    stream: false,
-    temperature: 0.3
+    ]
   };
 
   const resp = await fetch(cfg.endpoint, {
@@ -58,9 +79,9 @@ async function callDoubao(imageDataUrl, userPrompt) {
   }
   let json;
   try { json = JSON.parse(text); } catch { throw new Error("API 返回非 JSON: " + text.slice(0, 200)); }
-  const content = json?.choices?.[0]?.message?.content;
-  if (!content) throw new Error("API 返回缺少 content: " + text.slice(0, 200));
-  return typeof content === "string" ? content : JSON.stringify(content);
+  const out = extractResponseText(json);
+  if (!out) throw new Error("API 返回缺少文本: " + text.slice(0, 200));
+  return out;
 }
 
 async function triggerCapture(tab) {

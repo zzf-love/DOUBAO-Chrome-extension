@@ -4,7 +4,7 @@
 
 ## 功能
 
-- **快捷键触发框选**：默认 `Alt + Shift + S`，也可以点击扩展图标，或右键菜单 "用 AI 解读这块区域"。
+- **快捷键触发框选**：默认 `Alt + S`，也可以点击扩展图标，或右键菜单 "用 AI 解读这块区域"。
 - **拖拽框选**：跟系统截图一样的体验，`Esc` 取消。
 - **后台异步解析**：调用接口期间面板显示 "分析中…"，你可以继续滚动浏览。
 - **多任务面板**：右上角浮动面板可拖动、可折叠、可关闭。每次框选会新增一张卡片，包含缩略图 + 解析文本。
@@ -19,31 +19,31 @@
 
 ## 使用
 
-1. 在任意网页按 `Alt + Shift + S`（Mac 同样）
+1. 在任意网页按 `Alt + S`（Mac 同样）
 2. 鼠标拖拽框选你不理解的区域
 3. 看右上角面板：先出现 "分析中…"，几秒后出现结果
 4. 同时可以继续滚动 / 切标签页 / 干别的，结果会留在面板里
 
 ## 接口
 
-默认请求火山方舟 (ARK) 的 OpenAI 兼容接口：
+默认请求火山方舟 (ARK) 的 Responses API：
 
 ```
-POST https://ark.cn-beijing.volces.com/api/v3/chat/completions
+POST https://ark.cn-beijing.volces.com/api/v3/responses
 Authorization: Bearer <API_KEY>
 
 {
-  "model": "doubao-1-5-vision-pro-32k-250115",
-  "messages": [
+  "model": "doubao-seed-2-0-mini-260428",
+  "input": [
     { "role": "user", "content": [
-        { "type": "image_url", "image_url": { "url": "data:image/png;base64,..." } },
-        { "type": "text",      "text": "请用简体中文解析这张截图里的内容..." }
+        { "type": "input_image", "image_url": "data:image/png;base64,..." },
+        { "type": "input_text",  "text": "请用简体中文解析这张截图里的内容..." }
     ]}
   ]
 }
 ```
 
-如果你需要换成别的视觉模型（例如最新版 `doubao-1.5-vision-*` 或 `doubao-vision-*`），在扩展弹窗里改 `模型` 字段即可。
+如果你需要换成别的视觉模型 ID，在扩展弹窗里改 `模型` 字段即可。
 
 ## 文件结构
 
