@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>隐私政策 — AI Screenshot Explainer</title>
+  <style>
+    body {
+      max-width: 680px;
+      margin: 40px auto;
+      padding: 0 20px;
+      font: 15px/1.7 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #1f2329;
+    }
+    h1 { font-size: 22px; margin-bottom: 6px; }
+    h2 { font-size: 16px; margin: 24px 0 8px; color: #374151; }
+    p, li { color: #4b5563; }
+    ul { padding-left: 20px; }
+    .updated { font-size: 13px; color: #9ca3af; margin-bottom: 28px; }
+    a { color: #4f8cff; }
+  </style>
+</head>
+<body>
+  <h1>隐私政策</h1>
+  <p class="updated">最后更新：2025-05-21</p>
+
+  <p>
+    <strong>AI Screenshot Explainer</strong>（以下简称"本扩展"）由个人开发者发布。
+    本隐私政策说明本扩展如何处理您的数据。
+  </p>
+
+  <h2>收集的数据</h2>
+  <ul>
+    <li><strong>截图内容</strong>：您主动框选的网页区域截图（PNG 图像），仅在您触发分析时产生。</li>
+    <li><strong>API Key</strong>：您填写的火山方舟 API Key，仅存储在本地 <code>chrome.storage.local</code>，不离开您的设备，除非随请求发送至您配置的 API 服务端点。</li>
+    <li><strong>设置项</strong>：模型名称、Endpoint URL、默认 Prompt，同样仅存储在本地。</li>
+  </ul>
+
+  <h2>数据使用方式</h2>
+  <ul>
+    <li>截图和 Prompt 会发送至您在设置中配置的 API 服务（默认为火山引擎方舟平台）用于内容解析。</li>
+    <li>本扩展<strong>不</strong>向任何服务器收集、上传或共享除此之外的任何数据。</li>
+    <li>本扩展<strong>不</strong>追踪您的浏览行为，<strong>不</strong>使用 Cookie，<strong>不</strong>进行任何形式的数据分析或广告定向。</li>
+  </ul>
+
+  <h2>第三方服务</h2>
+  <p>
+    截图数据发送至火山引擎方舟平台（<a href="https://www.volcengine.com" target="_blank">volcengine.com</a>）。
+    您可在扩展设置中更改 API 端点以使用其他兼容服务。
+    使用第三方服务时，其隐私政策同样适用，请自行查阅。
+  </p>
+
+  <h2>数据存储与安全</h2>
+  <p>
+    所有设置（包括 API Key）均存储在 Chrome 的本地存储中，不经过任何云同步或第三方服务器。
+    API Key 以明文存于 <code>chrome.storage.local</code>，受 Chrome 扩展沙箱保护，
+    其他网页或扩展无法访问。请妥善保管您的设备访问权限。
+  </p>
+
+  <h2>权限说明</h2>
+  <ul>
+    <li><strong>activeTab / tabs</strong>：获取当前标签页的截图，仅在您主动触发时执行。</li>
+    <li><strong>scripting</strong>：在网页上注入框选覆盖层和结果面板的脚本。</li>
+    <li><strong>storage</strong>：在本地存储您的设置。</li>
+    <li><strong>contextMenus</strong>：在右键菜单中提供快捷入口。</li>
+  </ul>
+
+  <h2>儿童隐私</h2>
+  <p>本扩展不面向 13 岁以下儿童，也不有意收集儿童数据。</p>
+
+  <h2>变更通知</h2>
+  <p>隐私政策如有重大变更，将在扩展更新日志和本页面中说明。</p>
+
+  <h2>联系方式</h2>
+  <p>如有疑问，请通过 <a href="https://github.com/zzf-love/test-project01/issues">GitHub Issues</a> 联系我们。</p>
+</body>
+</html>

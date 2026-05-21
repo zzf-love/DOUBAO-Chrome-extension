@@ -15,7 +15,7 @@
     box.className = "aie-box";
     hint = document.createElement("div");
     hint.className = "aie-hint";
-    hint.textContent = "拖动鼠标框选要解读的区域 · Esc 取消";
+    hint.textContent = "拖动鼠标框选要解读的区域 · 右键或 Esc 取消";
     overlay.appendChild(box);
     overlay.appendChild(hint);
     document.documentElement.appendChild(overlay);
@@ -168,8 +168,16 @@
     }
   }
 
+  function onContextMenu(e) {
+    if (!overlay) return;
+    e.preventDefault();
+    e.stopPropagation();
+    removeOverlay();
+  }
+
   function onMouseDown(e) {
     if (!overlay) return;
+    if (e.button === 2) return;
     if (e.button !== 0) return;
     selecting = true;
     startX = e.clientX;
@@ -213,6 +221,7 @@
     if (overlay) return;
     createOverlay();
     overlay.addEventListener("mousedown", onMouseDown, true);
+    overlay.addEventListener("contextmenu", onContextMenu, true);
     window.addEventListener("mousemove", onMouseMove, true);
     window.addEventListener("mouseup", onMouseUp, true);
     window.addEventListener("keydown", onKeyDown, true);

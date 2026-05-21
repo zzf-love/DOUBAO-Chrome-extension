@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "AI 截图解读 (Doubao)",
-  "version": "1.0.0",
-  "description": "按住快捷键框选网页区域，多模态 AI 自动在浏览器顶部解析内容，不打断浏览。",
+  "name": "AI Screenshot Explainer",
+  "version": "1.1.0",
+  "description": "Press Alt+S to drag-select any area on a webpage. The Doubao multimodal AI explains the content in a floating panel — without interrupting your browsing.",
+  "homepage_url": "https://github.com/zzf-love/test-project01",
+  "icons": {
+    "16":  "icons/icon16.png",
+    "48":  "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "permissions": [
     "activeTab",
     "tabs",
@@ -11,7 +17,6 @@
     "contextMenus"
   ],
   "host_permissions": [
-    "<all_urls>",
     "https://ark.cn-beijing.volces.com/*"
   ],
   "background": {
@@ -19,7 +24,12 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "AI 截图解读 设置"
+    "default_title": "AI Screenshot Explainer — 设置",
+    "default_icon": {
+      "16":  "icons/icon16.png",
+      "48":  "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "content_scripts": [
     {

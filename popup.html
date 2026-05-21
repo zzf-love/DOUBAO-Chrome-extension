@@ -2,77 +2,155 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <title>AI 截图解读 设置</title>
+  <title>AI Screenshot Explainer</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            "PingFang SC", "Microsoft YaHei", sans-serif;
       width: 340px;
-      margin: 0;
-      padding: 14px;
+      background: #f8f9fc;
       color: #1f2329;
     }
-    h1 { font-size: 14px; margin: 0 0 10px; }
-    label { display: block; font-weight: 600; margin: 10px 0 4px; }
-    input, textarea, select {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 6px 8px;
-      border: 1px solid #d0d5dd;
-      border-radius: 6px;
-      font: inherit;
-    }
-    textarea { resize: vertical; min-height: 60px; }
-    .row { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
-    button {
+    .header {
       background: linear-gradient(135deg, #4f8cff, #7a5cff);
       color: #fff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
+      padding: 14px 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    button.secondary {
-      background: #f2f4f7;
-      color: #1f2329;
-      border: 1px solid #d0d5dd;
+    .header img { width: 28px; height: 28px; border-radius: 6px; }
+    .header-text h1 { font-size: 14px; font-weight: 700; }
+    .header-text p { font-size: 11px; opacity: 0.85; margin-top: 1px; }
+
+    .alert {
+      display: none;
+      background: #fff8e1;
+      border-left: 3px solid #f59e0b;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #92400e;
     }
-    .status { color: #16a34a; font-size: 12px; }
-    .muted { color: #6b7280; font-size: 12px; margin-top: 8px; }
-    .kbd {
+
+    .body { padding: 14px 16px; }
+
+    .usage {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #374151;
+      margin-bottom: 14px;
+    }
+    .usage .kbd {
       display: inline-block;
-      background: #f2f4f7;
-      border: 1px solid #d0d5dd;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
       border-radius: 4px;
       padding: 1px 6px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 11px;
     }
+
+    label { display: block; font-weight: 600; font-size: 12px; color: #374151; margin-bottom: 4px; }
+    .field { margin-bottom: 12px; }
+    input, textarea {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font: inherit;
+      font-size: 12px;
+      transition: border-color .15s;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #4f8cff;
+      box-shadow: 0 0 0 3px rgba(79,140,255,.12);
+    }
+    input.error { border-color: #ef4444; }
+    textarea { resize: vertical; min-height: 56px; }
+    .hint { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+
+    .actions { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font: 600 12px inherit;
+      transition: opacity .15s;
+    }
+    button:hover { opacity: 0.88; }
+    .btn-primary { background: linear-gradient(135deg, #4f8cff, #7a5cff); color: #fff; }
+    .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+    .status { font-size: 12px; color: #16a34a; }
+    .status.err { color: #ef4444; }
+
+    .footer {
+      border-top: 1px solid #e5e7eb;
+      padding: 8px 16px;
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      justify-content: space-between;
+    }
+    .footer a { color: #6b7280; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <h1>AI 截图解读（豆包 / 火山方舟）</h1>
-  <div class="muted">
-    使用方式：按 <span class="kbd">Alt + S</span> 或点击扩展图标，然后用鼠标拖拽框选区域。
-    解析结果会在网页右上角面板里展示，可继续浏览。
+  <div class="header">
+    <img src="icons/icon48.png" alt="icon" />
+    <div class="header-text">
+      <h1>AI Screenshot Explainer</h1>
+      <p>由豆包多模态大模型驱动</p>
+    </div>
   </div>
 
-  <label for="apiKey">API Key</label>
-  <input id="apiKey" type="password" placeholder="ark-..." />
+  <div class="alert" id="noKeyAlert">
+    ⚠️ 请先填写 API Key，否则截图无法解析。
+  </div>
 
-  <label for="model">模型</label>
-  <input id="model" type="text" placeholder="doubao-seed-2-0-mini-260428" />
+  <div class="body">
+    <div class="usage">
+      按 <span class="kbd">Alt+S</span> 后拖拽框选任意区域 · 右键或 <span class="kbd">Esc</span> 取消
+    </div>
 
-  <label for="endpoint">Endpoint</label>
-  <input id="endpoint" type="text" placeholder="https://ark.cn-beijing.volces.com/api/v3/responses" />
+    <div class="field">
+      <label for="apiKey">API Key <span style="color:#ef4444">*</span></label>
+      <input id="apiKey" type="password" placeholder="填入火山方舟 API Key（ark-...）" />
+      <div class="hint">仅存储在本地，不上传任何第三方。</div>
+    </div>
 
-  <label for="prompt">默认 Prompt</label>
-  <textarea id="prompt" placeholder="给 AI 的默认指令"></textarea>
+    <div class="field">
+      <label for="model">模型</label>
+      <input id="model" type="text" placeholder="doubao-seed-2-0-mini-260428" />
+    </div>
 
-  <div class="row">
-    <button id="save">保存</button>
-    <button id="reset" class="secondary">恢复默认</button>
-    <span id="status" class="status"></span>
+    <div class="field">
+      <label for="endpoint">Endpoint</label>
+      <input id="endpoint" type="text" placeholder="https://ark.cn-beijing.volces.com/api/v3/responses" />
+    </div>
+
+    <div class="field">
+      <label for="prompt">默认 Prompt</label>
+      <textarea id="prompt"></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="save">保存</button>
+      <button class="btn-secondary" id="reset">恢复默认</button>
+      <span class="status" id="status"></span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>v1.1.0</span>
+    <a href="https://github.com/zzf-love/test-project01" target="_blank">GitHub</a>
+    <a href="https://github.com/zzf-love/test-project01/blob/main/privacy.html" target="_blank">隐私政策</a>
   </div>
 
   <script src="popup.js"></script>
