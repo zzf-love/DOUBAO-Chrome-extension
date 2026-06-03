@@ -146,6 +146,14 @@
       color: var(--text-sec);
       margin-bottom: 10px;
     }
+    .usage-alt {
+      display: block;
+      margin-top: 5px;
+      padding-top: 5px;
+      border-top: 1px dashed var(--border);
+      font-size: 11px;
+      color: var(--text-mute);
+    }
     .kbd {
       display: inline-block;
       background: var(--kbd-bg);
@@ -326,8 +334,9 @@
   </div>
 
   <div class="body">
-    <div class="usage" title="备用快捷键 Alt+Shift+S（当 Alt+S 与网页冲突时使用）">
+    <div class="usage">
       按 <span class="kbd">Alt+S</span> 拖拽框选 · 右键 / <span class="kbd">Esc</span> 取消
+      <span class="usage-alt">主键无效时按备用键 <span class="kbd">Alt+Shift+S</span></span>
     </div>
 
     <div class="field">
