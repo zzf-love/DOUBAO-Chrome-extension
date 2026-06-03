@@ -150,7 +150,7 @@ async function triggerCapture(tab) {
 }
 
 chrome.commands.onCommand.addListener(async (command) => {
-  if (command !== "start-capture") return;
+  if (command !== "start-capture" && command !== "start-capture-alt") return;
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   triggerCapture(tab);
 });

@@ -17,7 +17,11 @@
   },
   "commandDesc": {
     "message": "Start region selection for AI explanation",
-    "description": "Keyboard shortcut description."
+    "description": "Keyboard shortcut description (primary)."
+  },
+  "commandDescAlt": {
+    "message": "Start region selection (backup shortcut if Alt+S clashes)",
+    "description": "Keyboard shortcut description (backup binding)."
   },
 
   "preset_general_label":   { "message": "General" },

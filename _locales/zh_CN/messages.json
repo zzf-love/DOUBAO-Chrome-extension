@@ -17,7 +17,11 @@
   },
   "commandDesc": {
     "message": "开始框选区域并交给 AI 解读",
-    "description": "Keyboard shortcut description."
+    "description": "Keyboard shortcut description (primary)."
+  },
+  "commandDescAlt": {
+    "message": "开始框选（备用快捷键，避免 Alt+S 与网页冲突时使用）",
+    "description": "Keyboard shortcut description (backup binding)."
   },
 
   "preset_general_label":   { "message": "通用" },
