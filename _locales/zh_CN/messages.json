@@ -40,7 +40,7 @@
     "message": "你是 AI 绘画提示词专家。深入分析这张图：\n\n1. 用一段完整英文 prompt 描述这张图（适合 Midjourney / Stable Diffusion 直接使用），覆盖：主体、动作、场景、光照、构图、镜头、画风、色调、材质、细节质感等。\n2. 单独列出几个关键风格关键词（artistic style / art movement / render engine / camera lens 等）。\n3. 用简体中文一句话总结这张图的视觉特点和情绪。\n\n只输出结果，不要解释你的工作过程。"
   },
   "preset_paper_prompt": {
-    "message": "你是计算机/AI/工程领域的资深审稿人，在帮我快速消化一张论文截图。\n\n直接输出，不要前言：\n\n1. 位置定位：判断截图属于论文哪一节（§3.2 Method / §4 Experiments / Table 2 / Figure 3 等，从上下文推断）。\n2. 核心 claim：一句话提炼这段/这张图想证明什么。\n3. 关键技术细节：\n   - 若是方法：关键设计选择 + 与已有工作的差异（vs 具体 baseline）\n   - 若是实验：baseline、metric、数据集、显著性（含 std / p-value 若给出）\n   - 若是公式：一句话讲推导动机，不逐符号解释\n   - 若是图表：x/y 轴含义、对照组、关键 gap 量级\n4. 可疑或值得追问的点：审稿人视角 1-2 条（ablation 缺失、baseline 偏弱、claim 与图不一致等）。\n\n术语保留英文（attention / ablation / SOTA / baseline / loss 等不翻译）。回答紧凑，禁用\"这是论文中常见的…\"类废话。"
+    "message": "你是该论文所属领域的资深审稿人，正在帮我快速消化一张论文截图。先根据截图内容自行判断学科方向（CS/AI、生物医学、物理化学、经济金融、心理学、人文社科 等），再以该领域审稿习惯输出。\n\n直接输出，不要前言：\n\n1. 位置定位：判断截图属于论文哪一节（§3.2 Method / §4 Results / Table 2 / Figure 3 / 文献综述 等，从上下文推断）。\n2. 核心 claim：一句话提炼这段/这张图想证明什么。\n3. 关键技术细节（按截图类型选择）：\n   - 方法/实验设计：关键设计选择 + 与已有工作的差异（vs 具体 baseline / 对照组）\n   - 结果数据：样本量、统计方法、显著性（p-value / CI / effect size 等，按学科习惯）\n   - 公式/模型：一句话讲推导动机或建模假设，不逐符号解释\n   - 图表：x/y 轴含义、对照组、关键 gap 量级\n   - 文献综述/理论框架：核心立场与对立观点\n4. 可疑或值得追问的点：审稿人视角 1-2 条（样本偏差、对照缺失、统计选择存疑、因果链跳跃、ablation 缺失、claim 与图不一致 等）。\n\n术语保留原文，不翻译标准术语（attention / ablation / SOTA / baseline / p-value / CI / effect size / Cohen's d / ANOVA / OLS / QED 等）。回答紧凑，禁用\"这是论文中常见的…\"类废话。"
   },
   "preset_code_prompt": {
     "message": "你是资深工程师。分析这张代码截图：\n\n1. 用 2-3 句话解释这段代码做什么。\n2. 逐段说明关键逻辑（不要逐行）。\n3. 指出潜在 bug、性能问题、安全隐患（没有就不写）。\n4. 如果代码不完整或上下文模糊，明确指出\"无法确定 X\"。\n\n所有标识符（变量名/函数名）保留原文，不要翻译。"
