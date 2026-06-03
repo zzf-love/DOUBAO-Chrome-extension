@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>AI 截图解读 — 全屏模式</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+            "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f8f9fc;
+      color: #1f2329;
+      min-height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, #4f8cff, #7a5cff);
+      color: #fff;
+      padding: 14px 18px;
+    }
+    .header h1 { font-size: 15px; font-weight: 700; }
+    .header p  { font-size: 12px; opacity: .9; margin-top: 2px; }
+    .source {
+      font-size: 11px;
+      opacity: .75;
+      margin-top: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .body { padding: 16px 18px 24px; }
+
+    .capture-wrap {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .capture {
+      width: 100%;
+      display: block;
+      max-height: 360px;
+      object-fit: contain;
+      background: #f3f4f6;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font: 600 13px inherit;
+      transition: opacity .15s;
+    }
+    button:hover { opacity: .88; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary {
+      background: linear-gradient(135deg, #4f8cff, #7a5cff);
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .result {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px 16px;
+      min-height: 80px;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #4b5563;
+    }
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #d1d5db;
+      border-top-color: #4f8cff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .result-text {
+      white-space: pre-wrap;
+      line-height: 1.75;
+      color: #1f2329;
+    }
+    .result-text p { margin-bottom: 10px; }
+    .result-text p:last-child { margin-bottom: 0; }
+    .error { color: #dc2626; }
+
+    .result-actions {
+      margin-top: 10px;
+      display: none;
+    }
+    .result.done .result-actions { display: flex; gap: 8px; }
+    .btn-mini {
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 5px;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      color: #4b5563;
+    }
+    .btn-mini:hover { border-color: #4f8cff; color: #4f8cff; }
+
+    .footer {
+      padding: 10px 18px 14px;
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AI 截图解读 — 全屏模式</h1>
+    <p>当前页面不支持框选（PDF / chrome:// / 受限页面），已自动捕获整页交给 AI</p>
+    <div class="source" id="source"></div>
+  </div>
+
+  <div class="body">
+    <div class="capture-wrap">
+      <img id="capture" class="capture" alt="captured page" />
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" id="analyze">让 AI 解读</button>
+      <button class="btn-secondary" id="close">关闭</button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="status">
+        <span class="spinner"></span>
+        <span>准备好后点击「让 AI 解读」</span>
+      </div>
+      <div class="result-actions">
+        <button class="btn-mini" id="copy">复制结果</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">AI 截图解读 · 全屏回退模式</div>
+
+  <script src="result.js"></script>
+</body>
+</html>

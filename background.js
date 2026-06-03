@@ -88,14 +88,48 @@ async function callDoubao(imageDataUrl, userPrompt) {
   return out;
 }
 
-async function triggerCapture(tab) {
-  if (!tab || !tab.id) return;
-  if (/^(chrome|edge|about|chrome-extension):/.test(tab.url || "")) {
+async function fullscreenFallback(tab) {
+  // For tabs we can't inject into (PDF viewer, chrome://, restricted file://),
+  // capture the entire visible area and open our own result window so the AI
+  // can still explain what's on screen.
+  let dataUrl;
+  try {
+    dataUrl = await captureVisibleTab(tab.windowId);
+  } catch (e) {
+    console.error("captureVisibleTab failed:", e);
     return;
   }
-  try {
-    await chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
-  } catch (e) {
+  await chrome.storage.local.set({
+    pendingCapture: {
+      dataUrl,
+      sourceUrl: tab.url || "",
+      sourceTitle: tab.title || "",
+      ts: Date.now()
+    }
+  });
+  await chrome.windows.create({
+    url: chrome.runtime.getURL("result.html"),
+    type: "popup",
+    width: 620,
+    height: 820
+  });
+}
+
+async function triggerCapture(tab) {
+  if (!tab || !tab.id) return;
+
+  const url = tab.url || "";
+  // chrome://, edge://, about:, chrome-extension:// are non-injectable.
+  // PDFs served via http(s) load Chrome's internal PDF viewer — injection
+  // throws too, so we let the try/catch below catch that case as well.
+  const forceFullscreen = /^(chrome|edge|about|chrome-extension|view-source):/.test(url);
+
+  if (!forceFullscreen) {
+    try {
+      await chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
+      return;
+    } catch (_) { /* content script not yet injected */ }
+
     try {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -106,10 +140,13 @@ async function triggerCapture(tab) {
         files: ["content.css"]
       });
       await chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
+      return;
     } catch (err) {
-      console.error("注入失败：", err);
+      console.warn("Injection failed, falling back to fullscreen mode:", err);
     }
   }
+
+  await fullscreenFallback(tab);
 }
 
 chrome.commands.onCommand.addListener(async (command) => {
