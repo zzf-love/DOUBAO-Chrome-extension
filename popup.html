@@ -70,15 +70,16 @@
     .presets {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
+      gap: 4px;
       margin-bottom: 6px;
     }
     .preset {
-      padding: 3px 9px;
+      padding: 2px 8px;
       border: 1px solid #d1d5db;
       background: #fff;
       border-radius: 100px;
-      font: 500 11px inherit;
+      font: 500 10.5px inherit;
+      line-height: 1.55;
       cursor: pointer;
       color: #4b5563;
       transition: border-color .15s, color .15s, background .15s;
@@ -90,6 +91,17 @@
       border-color: transparent;
     }
     .preset.active:hover { color: #fff; }
+    .preset.custom { border-style: dashed; color: #9ca3af; }
+    .preset.custom:hover { border-style: solid; }
+    .preset.custom.filled { border-style: solid; border-color: #4f8cff; color: #4f8cff; }
+    .preset.custom.active { border-style: solid; }
+
+    .hint-link {
+      color: #4f8cff;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .hint-link:hover { text-decoration: underline; }
     input, textarea {
       width: 100%;
       padding: 7px 10px;
@@ -159,7 +171,10 @@
         <a class="get-key" id="getApiKey" href="#">没有 Key？点这里 →</a>
       </div>
       <input id="apiKey" type="password" placeholder="填入火山方舟 API Key（ark-...）" />
-      <div class="hint">仅存储在本地，不上传任何第三方。</div>
+      <div class="hint">
+        仅存储在本地，不上传任何第三方 ·
+        <a class="hint-link" id="volcengineLink" href="#">前往火山引擎 →</a>
+      </div>
     </div>
 
     <div class="field">

@@ -23,7 +23,7 @@
   "preset_general_label":   { "message": "通用" },
   "preset_ocr_label":       { "message": "转录文字" },
   "preset_translate_label": { "message": "翻译" },
-  "preset_reverse_label":   { "message": "反推提示词" },
+  "preset_visual_label":    { "message": "视觉解析" },
   "preset_paper_label":     { "message": "读论文" },
   "preset_code_label":      { "message": "代码解释" },
 
@@ -36,8 +36,8 @@
   "preset_translate_prompt": {
     "message": "把这张截图里的所有可见文字翻译成简体中文，保留原排版（段落、列表、表格、代码块）。不要解释，不要总结，直接给翻译结果。专有名词第一次出现时用括号附原文。"
   },
-  "preset_reverse_prompt": {
-    "message": "你是 AI 绘画提示词专家。深入分析这张图：\n\n1. 用一段完整英文 prompt 描述这张图（适合 Midjourney / Stable Diffusion 直接使用），覆盖：主体、动作、场景、光照、构图、镜头、画风、色调、材质、细节质感等。\n2. 单独列出几个关键风格关键词（artistic style / art movement / render engine / camera lens 等）。\n3. 用简体中文一句话总结这张图的视觉特点和情绪。\n\n只输出结果，不要解释你的工作过程。"
+  "preset_visual_prompt": {
+    "message": "你是视觉分析专家，正帮设计师/创作者拆解一张图。深入分析这张图的画面构成：\n\n1. 主体与场景：画面里有什么人/物/环境，主体如何摆放。\n2. 构图与镜头：构图法（三分/居中/对称/对角/引导线 等）、视角（俯/平/仰）、景深、镜头焦段感觉。\n3. 光照与色彩：光源方向与质感、明暗对比、主色/辅色/点缀色（每色附 HEX）、整体色调（暖/冷/高级灰/莫兰迪 等）。\n4. 风格与质感：艺术风格（写实/插画/3D/胶片/赛博朋克/极简 等）、材质质感（光滑/粗糙/液态/金属/绒面 等）、画面情绪。\n5. 可复用关键词：用一段紧凑英文描述这张图（逗号分隔关键词，可直接粘贴到任意 AI 绘图工具——Midjourney / Stable Diffusion / 即梦 / Nano Banana / ChatGPT / DALL·E / Flux 等）。\n\n只输出结果，不要解释你的工作过程。"
   },
   "preset_paper_prompt": {
     "message": "你是该论文所属领域的资深审稿人，正在帮我快速消化一张论文截图。先根据截图内容自行判断学科方向（CS/AI、生物医学、物理化学、经济金融、心理学、人文社科 等），再以该领域审稿习惯输出。\n\n直接输出，不要前言：\n\n1. 位置定位：判断截图属于论文哪一节（§3.2 Method / §4 Results / Table 2 / Figure 3 / 文献综述 等，从上下文推断）。\n2. 核心 claim：一句话提炼这段/这张图想证明什么。\n3. 关键技术细节（按截图类型选择）：\n   - 方法/实验设计：关键设计选择 + 与已有工作的差异（vs 具体 baseline / 对照组）\n   - 结果数据：样本量、统计方法、显著性（p-value / CI / effect size 等，按学科习惯）\n   - 公式/模型：一句话讲推导动机或建模假设，不逐符号解释\n   - 图表：x/y 轴含义、对照组、关键 gap 量级\n   - 文献综述/理论框架：核心立场与对立观点\n4. 可疑或值得追问的点：审稿人视角 1-2 条（样本偏差、对照缺失、统计选择存疑、因果链跳跃、ablation 缺失、claim 与图不一致 等）。\n\n术语保留原文，不翻译标准术语（attention / ablation / SOTA / baseline / p-value / CI / effect size / Cohen's d / ANOVA / OLS / QED 等）。回答紧凑，禁用\"这是论文中常见的…\"类废话。"
@@ -47,5 +47,11 @@
   },
 
   "getApiKey": { "message": "没有 Key？点这里 →" },
-  "presetLabel": { "message": "Prompt 模板" }
+  "volcengineLink": { "message": "前往火山引擎 →" },
+  "presetLabel": { "message": "Prompt 模板" },
+  "customLabel": { "message": "自定义" },
+  "customTipEmpty": { "message": "点击：把当前 Prompt 存到这里" },
+  "customTipFilled": { "message": "点击：载入此 Prompt｜右键：清除" },
+  "customNeedPrompt": { "message": "请先在下方输入要保存的 Prompt" },
+  "customConfirmClear": { "message": "清除这个自定义 Prompt？" }
 }

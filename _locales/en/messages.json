@@ -23,7 +23,7 @@
   "preset_general_label":   { "message": "General" },
   "preset_ocr_label":       { "message": "Transcribe" },
   "preset_translate_label": { "message": "Translate" },
-  "preset_reverse_label":   { "message": "Reverse-prompt" },
+  "preset_visual_label":    { "message": "Visual analysis" },
   "preset_paper_label":     { "message": "Read paper" },
   "preset_code_label":      { "message": "Explain code" },
 
@@ -36,8 +36,8 @@
   "preset_translate_prompt": {
     "message": "Translate all visible text in this screenshot to English, preserving the original layout (paragraphs, lists, tables, code blocks). No commentary, no summary — just the translation. Include original term in parentheses on first occurrence of proper nouns."
   },
-  "preset_reverse_prompt": {
-    "message": "You are an AI image-prompt expert. Deeply analyze this image:\n\n1. Write a complete English prompt suitable for direct use in Midjourney / Stable Diffusion, covering: subject, action, scene, lighting, composition, camera, artistic style, color palette, materials, fine detail.\n2. List key style keywords separately (artistic style / art movement / render engine / camera lens, etc.).\n3. Summarize the image's visual character and mood in one sentence.\n\nOutput only the result; do not explain your process."
+  "preset_visual_prompt": {
+    "message": "You are a visual analysis expert, helping designers/creators deconstruct an image. Analyze its visual composition in depth:\n\n1. Subject & scene: what people / objects / environment are present, and how the subject is placed.\n2. Composition & camera: composition method (rule of thirds / centered / symmetric / diagonal / leading lines, etc.), viewpoint (high / eye-level / low), depth of field, focal-length feel.\n3. Lighting & color: light source direction and quality, contrast, primary / secondary / accent colors (each with HEX), overall tone (warm / cool / muted / pastel, etc.).\n4. Style & texture: artistic style (photoreal / illustration / 3D / film / cyberpunk / minimal, etc.), material texture (smooth / rough / liquid / metallic / matte, etc.), emotional mood.\n5. Reusable keywords: a tight comma-separated English description usable directly in any AI image tool — Midjourney / Stable Diffusion / Jimeng / Nano Banana / ChatGPT / DALL·E / Flux, etc.\n\nOutput only the result; do not explain your process."
   },
   "preset_paper_prompt": {
     "message": "You are a senior reviewer in the paper's field, helping me quickly digest a screenshot. First infer the discipline from the screenshot (CS/AI, biomedical, physics/chemistry, economics/finance, psychology, social sciences/humanities, etc.) and follow the review conventions of that field.\n\nOutput directly, no preamble:\n\n1. Section locator: identify which section (§3.2 Method / §4 Results / Table 2 / Figure 3 / literature review, etc.) based on context.\n2. Core claim: one sentence on what this passage/figure is trying to prove.\n3. Technical details (pick what applies):\n   - Method / study design: key design choices + differences vs prior work (vs specific baselines / control groups)\n   - Results data: sample size, statistical methods, significance (p-value / CI / effect size, per field convention)\n   - Equation / model: one-sentence derivation motivation or modelling assumption; do not explain each symbol\n   - Figure/Table: axis semantics, control groups, magnitude of key gaps\n   - Literature review / theoretical framework: core position vs opposing views\n4. Points to question (reviewer perspective, 1-2): sample bias, missing controls, questionable statistical choices, causal leaps, missing ablations, claim-figure mismatch, etc.\n\nKeep technical terms in their original form (attention, ablation, SOTA, baseline, p-value, CI, effect size, Cohen's d, ANOVA, OLS, QED, etc.). Be terse; no 'this is a common pattern in...' filler."
@@ -47,5 +47,11 @@
   },
 
   "getApiKey": { "message": "Get an API key →" },
-  "presetLabel": { "message": "Prompt preset" }
+  "volcengineLink": { "message": "Volcengine console →" },
+  "presetLabel": { "message": "Prompt preset" },
+  "customLabel": { "message": "Custom" },
+  "customTipEmpty": { "message": "Click: save the current prompt here" },
+  "customTipFilled": { "message": "Click: load this prompt | Right-click: clear" },
+  "customNeedPrompt": { "message": "Enter a prompt below first." },
+  "customConfirmClear": { "message": "Clear this custom prompt?" }
 }

@@ -1,4 +1,5 @@
-const PRESET_IDS = ["general", "ocr", "translate", "reverse", "paper", "code"];
+const PRESET_IDS = ["general", "ocr", "translate", "visual", "paper", "code"];
+const CUSTOM_SLOT_COUNT = 3;
 
 const i18n = (k) => chrome.i18n.getMessage(k) || "";
 
@@ -16,18 +17,23 @@ const DEFAULTS = {
   endpoint: "https://ark.cn-beijing.volces.com/api/v3/responses",
   model: "doubao-seed-2-0-mini-260428",
   prompt: PRESETS[0].prompt,
+  customPrompts: ["", "", ""],
 };
 
 const $ = (id) => document.getElementById(id);
 
+let customPrompts = ["", "", ""];
+
 function renderPresets() {
   const host = $("presets");
   host.textContent = "";
+
+  // built-in presets
   for (const p of PRESETS) {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "preset";
-    btn.dataset.id = p.id;
+    btn.dataset.preset = p.id;
     btn.textContent = p.label;
     btn.title = p.prompt.slice(0, 80) + (p.prompt.length > 80 ? "…" : "");
     btn.addEventListener("click", () => {
@@ -37,13 +43,68 @@ function renderPresets() {
     });
     host.appendChild(btn);
   }
+
+  // custom slots
+  const customLabel = i18n("customLabel") || "自定义";
+  const tipEmpty = i18n("customTipEmpty");
+  const tipFilled = i18n("customTipFilled");
+  for (let i = 0; i < CUSTOM_SLOT_COUNT; i++) {
+    const filled = !!customPrompts[i];
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "preset custom" + (filled ? " filled" : "");
+    btn.dataset.custom = String(i);
+    btn.textContent = `${customLabel} ${i + 1}`;
+    btn.title = filled
+      ? `${tipFilled}\n\n${customPrompts[i].slice(0, 80)}${customPrompts[i].length > 80 ? "…" : ""}`
+      : tipEmpty;
+    btn.addEventListener("click", () => handleCustomClick(i));
+    btn.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      handleCustomClear(i);
+    });
+    host.appendChild(btn);
+  }
+  syncActivePreset();
+}
+
+function handleCustomClick(i) {
+  if (customPrompts[i]) {
+    $("prompt").value = customPrompts[i];
+    syncActivePreset();
+    schedulePromptSave();
+    return;
+  }
+  const cur = $("prompt").value.trim();
+  if (!cur) {
+    alert(i18n("customNeedPrompt") || "请先在下方输入要保存的 Prompt");
+    return;
+  }
+  customPrompts[i] = cur;
+  chrome.storage.local.set({ customPrompts });
+  renderPresets();
+}
+
+function handleCustomClear(i) {
+  if (!customPrompts[i]) return;
+  if (!confirm(i18n("customConfirmClear") || "清除这个自定义 Prompt？")) return;
+  customPrompts[i] = "";
+  chrome.storage.local.set({ customPrompts });
+  renderPresets();
 }
 
 function syncActivePreset() {
   const cur = $("prompt").value.trim();
   for (const btn of $("presets").querySelectorAll(".preset")) {
-    const p = PRESETS.find((x) => x.id === btn.dataset.id);
-    btn.classList.toggle("active", p && p.prompt.trim() === cur);
+    let match = false;
+    if (btn.dataset.preset) {
+      const p = PRESETS.find((x) => x.id === btn.dataset.preset);
+      match = p && p.prompt.trim() === cur;
+    } else if (btn.dataset.custom !== undefined) {
+      const slot = customPrompts[Number(btn.dataset.custom)];
+      match = !!slot && slot.trim() === cur;
+    }
+    btn.classList.toggle("active", !!match);
   }
 }
 
@@ -61,11 +122,14 @@ async function load() {
   $("endpoint").value = data.endpoint ?? DEFAULTS.endpoint;
   $("model").value = data.model ?? DEFAULTS.model;
   $("prompt").value = data.prompt ?? DEFAULTS.prompt;
+  customPrompts = Array.isArray(data.customPrompts) && data.customPrompts.length === CUSTOM_SLOT_COUNT
+    ? data.customPrompts.map((s) => (typeof s === "string" ? s : ""))
+    : ["", "", ""];
 
   const noKey = !$("apiKey").value.trim();
   $("noKeyAlert").style.display = noKey ? "block" : "none";
   $("apiKey").classList.toggle("error", noKey);
-  syncActivePreset();
+  renderPresets();
 }
 
 async function save() {
@@ -79,6 +143,7 @@ async function save() {
     endpoint: $("endpoint").value.trim() || DEFAULTS.endpoint,
     model: $("model").value.trim() || DEFAULTS.model,
     prompt: $("prompt").value.trim() || DEFAULTS.prompt,
+    customPrompts,
   });
 
   const s = $("status");
@@ -88,7 +153,13 @@ async function save() {
 }
 
 async function reset() {
-  await chrome.storage.local.set(DEFAULTS);
+  // Reset only API / model / endpoint / prompt; keep customPrompts intact
+  await chrome.storage.local.set({
+    apiKey: DEFAULTS.apiKey,
+    endpoint: DEFAULTS.endpoint,
+    model: DEFAULTS.model,
+    prompt: DEFAULTS.prompt,
+  });
   await load();
   const s = $("status");
   s.className = "status";
@@ -106,20 +177,29 @@ function openApiKeyPage(e) {
   chrome.tabs.create({ url });
 }
 
+function openVolcengine(e) {
+  e.preventDefault();
+  chrome.tabs.create({
+    url: "https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey",
+  });
+}
+
 function applyI18nLabels() {
   const presetLabel = i18n("presetLabel");
   if (presetLabel) $("presetLabel").textContent = presetLabel;
   const getKey = i18n("getApiKey");
   if (getKey) $("getApiKey").textContent = getKey;
+  const vol = i18n("volcengineLink");
+  if (vol) $("volcengineLink").textContent = vol;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   applyI18nLabels();
-  renderPresets();
   load();
   $("save").addEventListener("click", save);
   $("reset").addEventListener("click", reset);
   $("getApiKey").addEventListener("click", openApiKeyPage);
+  $("volcengineLink").addEventListener("click", openVolcengine);
   $("apiKey").addEventListener("input", () => {
     const noKey = !$("apiKey").value.trim();
     $("noKeyAlert").style.display = noKey ? "block" : "none";
