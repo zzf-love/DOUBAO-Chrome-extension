@@ -46,8 +46,8 @@
     "message": "你是资深工程师。分析这张代码截图：\n\n1. 用 2-3 句话解释这段代码做什么。\n2. 逐段说明关键逻辑（不要逐行）。\n3. 指出潜在 bug、性能问题、安全隐患（没有就不写）。\n4. 如果代码不完整或上下文模糊，明确指出\"无法确定 X\"。\n\n所有标识符（变量名/函数名）保留原文，不要翻译。"
   },
 
-  "getApiKey": { "message": "没有 Key？点这里 →" },
-  "volcengineLink": { "message": "前往火山引擎 →" },
+  "getApiKey": { "message": "没有 Key？" },
+  "volcengineLink": { "message": "火山引擎 →" },
   "presetLabel": { "message": "Prompt 模板" },
   "customLabel": { "message": "自定义" },
   "customTipEmpty": { "message": "点击选中，在下方文本框编写你自己的 Prompt（自动保存）" },

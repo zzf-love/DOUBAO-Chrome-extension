@@ -4,74 +4,232 @@
   <meta charset="utf-8" />
   <title>AI Screenshot Explainer</title>
   <style>
+    :root {
+      --brand-from: #4f8cff;
+      --brand-to:   #7a5cff;
+      --bg:         #f8f9fc;
+      --surface:    #ffffff;
+      --border:     #e5e7eb;
+      --text:       #1f2329;
+      --text-sec:   #4b5563;
+      --text-mute:  #9ca3af;
+      --danger:     #ef4444;
+      --success:    #16a34a;
+      --alert-bg:   #fff8e1;
+      --alert-bd:   #f59e0b;
+      --alert-tx:   #92400e;
+      --kbd-bg:     #f3f4f6;
+      --kbd-bd:     #d1d5db;
+    }
+    body[data-theme="dark"] {
+      --brand-from: #6b8eff;
+      --brand-to:   #a78bff;
+      --bg:         #0f1419;
+      --surface:    #1c2128;
+      --border:     #2d333b;
+      --text:       #c9d1d9;
+      --text-sec:   #8b949e;
+      --text-mute:  #6e7681;
+      --danger:     #f87171;
+      --success:    #4ade80;
+      --alert-bg:   #2d2510;
+      --alert-bd:   #d97706;
+      --alert-tx:   #fbbf24;
+      --kbd-bg:     #21262d;
+      --kbd-bd:     #30363d;
+    }
+    body[data-theme="sakura"] {
+      --brand-from: #f472b6;
+      --brand-to:   #c084fc;
+      --bg:         #fdf2f8;
+      --surface:    #ffffff;
+      --border:     #fbcfe8;
+      --text:       #500724;
+      --text-sec:   #9d174d;
+      --text-mute:  #db7185;
+      --danger:     #e11d48;
+      --success:    #15803d;
+      --alert-bg:   #fef3c7;
+      --alert-bd:   #f59e0b;
+      --alert-tx:   #92400e;
+      --kbd-bg:     #fce7f3;
+      --kbd-bd:     #fbcfe8;
+    }
+    body[data-theme="mono"] {
+      --brand-from: #404040;
+      --brand-to:   #0a0a0a;
+      --bg:         #fafafa;
+      --surface:    #ffffff;
+      --border:     #e5e5e5;
+      --text:       #0a0a0a;
+      --text-sec:   #525252;
+      --text-mute:  #a3a3a3;
+      --danger:     #dc2626;
+      --success:    #16a34a;
+      --alert-bg:   #f5f5f5;
+      --alert-bd:   #737373;
+      --alert-tx:   #262626;
+      --kbd-bg:     #f5f5f5;
+      --kbd-bd:     #d4d4d4;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
             "PingFang SC", "Microsoft YaHei", sans-serif;
       width: 340px;
-      background: #f8f9fc;
-      color: #1f2329;
+      background: var(--bg);
+      color: var(--text);
+      transition: background .2s, color .2s;
     }
+
+    /* ============ Header ============ */
     .header {
-      background: linear-gradient(135deg, #4f8cff, #7a5cff);
+      background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
       color: #fff;
-      padding: 14px 16px 12px;
+      padding: 10px 12px 9px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
     }
-    .header img { width: 28px; height: 28px; border-radius: 6px; }
-    .header-text h1 { font-size: 14px; font-weight: 700; }
-    .header-text p { font-size: 11px; opacity: 0.85; margin-top: 1px; }
+    .header img { width: 26px; height: 26px; border-radius: 6px; }
+    .header-text h1 { font-size: 13px; font-weight: 700; line-height: 1.2; }
+    .header-text p  { font-size: 10px; opacity: .85; margin-top: 1px; }
 
+    .themes { margin-left: auto; display: flex; gap: 5px; }
+    .theme-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      cursor: pointer;
+      transition: transform .15s;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.25);
+    }
+    .theme-dot:hover { transform: scale(1.18); }
+    .theme-dot[data-theme="aurora"] { background-image: linear-gradient(135deg, #4f8cff, #7a5cff); }
+    .theme-dot[data-theme="dark"]   { background-image: linear-gradient(135deg, #21262d, #6b8eff); }
+    .theme-dot[data-theme="sakura"] { background-image: linear-gradient(135deg, #f472b6, #c084fc); }
+    .theme-dot[data-theme="mono"]   { background-image: linear-gradient(135deg, #404040, #0a0a0a); }
+    .theme-dot.active {
+      border-color: #fff;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.55);
+    }
+
+    /* ============ Alert ============ */
     .alert {
       display: none;
-      background: #fff8e1;
-      border-left: 3px solid #f59e0b;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: #92400e;
+      background: var(--alert-bg);
+      border-left: 3px solid var(--alert-bd);
+      padding: 6px 12px;
+      font-size: 11px;
+      color: var(--alert-tx);
     }
 
-    .body { padding: 14px 16px; }
+    /* ============ Body ============ */
+    .body { padding: 11px 13px 12px; }
 
     .usage {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 12px;
-      color: #374151;
-      margin-bottom: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--text-sec);
+      margin-bottom: 10px;
     }
-    .usage .kbd {
+    .kbd {
       display: inline-block;
-      background: #f3f4f6;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      padding: 1px 6px;
+      background: var(--kbd-bg);
+      border: 1px solid var(--kbd-bd);
+      border-radius: 3px;
+      padding: 0 5px;
       font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 11px;
+      font-size: 10px;
+      color: var(--text);
     }
 
-    label { display: block; font-weight: 600; font-size: 12px; color: #374151; margin-bottom: 4px; }
-    .field { margin-bottom: 12px; }
-
-    .key-links {
+    .field { margin-bottom: 9px; }
+    .field-header {
       display: flex;
-      gap: 12px;
+      justify-content: space-between;
       align-items: center;
-      margin-top: 5px;
+      margin-bottom: 4px;
+      gap: 6px;
     }
-    .key-links a {
-      font-size: 11px;
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 11.5px;
+      color: var(--text-sec);
+    }
+    .field-header label { margin-bottom: 0; }
+    .required { color: var(--danger); }
+
+    .key-chips { display: flex; gap: 4px; }
+    .key-chip {
+      height: 19px;
+      padding: 0 7px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 5px;
+      font-size: 10px;
       font-weight: 500;
-      color: #4f8cff;
+      color: var(--brand-from);
       text-decoration: none;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: border-color .15s, background .15s, color .15s;
     }
-    .key-links a:hover { text-decoration: underline; }
+    .key-chip:hover {
+      border-color: var(--brand-from);
+      background: var(--bg);
+    }
 
+    input, textarea {
+      width: 100%;
+      padding: 6px 9px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font: inherit;
+      font-size: 12px;
+      color: var(--text);
+      background: var(--surface);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--brand-from);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-from) 18%, transparent);
+    }
+    input.error { border-color: var(--danger); }
+    textarea { resize: vertical; min-height: 50px; }
+    .hint { font-size: 10.5px; color: var(--text-mute); margin-top: 3px; }
+
+    /* ============ Advanced collapsible ============ */
+    .advanced { margin-bottom: 9px; }
+    .advanced > summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      font-size: 11px;
+      color: var(--text-mute);
+      padding: 3px 0;
+    }
+    .advanced > summary::-webkit-details-marker { display: none; }
+    .advanced > summary::before {
+      content: "▸";
+      display: inline-block;
+      margin-right: 5px;
+      transition: transform .15s;
+    }
+    .advanced[open] > summary::before { transform: rotate(90deg); }
+    .advanced[open] { padding-bottom: 2px; }
+    .advanced .field:first-of-type { margin-top: 6px; }
+    .advanced .field:last-child { margin-bottom: 4px; }
+
+    /* ============ Preset chips ============ */
     .presets {
       display: flex;
       flex-wrap: wrap;
@@ -79,82 +237,77 @@
       margin-bottom: 6px;
     }
     .preset {
-      padding: 2px 8px;
-      border: 1px solid #d1d5db;
-      background: #fff;
+      height: 22px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
       border-radius: 100px;
-      font: 500 10.5px inherit;
-      line-height: 1.55;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-sec);
       cursor: pointer;
-      color: #4b5563;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       transition: border-color .15s, color .15s, background .15s;
     }
-    .preset:hover { border-color: #4f8cff; color: #4f8cff; }
-    .preset.custom { border-style: dashed; color: #9ca3af; }
-    .preset.custom:hover { border-style: solid; color: #4f8cff; }
-    .preset.custom.filled { border-style: solid; border-color: #4f8cff; color: #4f8cff; background: #fff; }
-    /* active wins over filled — must stay last so white text sits on the gradient */
-    .preset.active,
-    .preset.custom.active {
-      background: linear-gradient(135deg, #4f8cff, #7a5cff);
+    .preset:hover { border-color: var(--brand-from); color: var(--brand-from); }
+    .preset.active {
+      background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
       color: #fff;
       border-color: transparent;
-      border-style: solid;
     }
-    .preset.active:hover,
-    .preset.custom.active:hover { color: #fff; }
+    .preset.active:hover { color: #fff; }
 
-    .hint { font-size: 11px; color: #9ca3af; margin-top: 3px; }
-    input, textarea {
-      width: 100%;
-      padding: 7px 10px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font: inherit;
-      font-size: 12px;
-      transition: border-color .15s;
-    }
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: #4f8cff;
-      box-shadow: 0 0 0 3px rgba(79,140,255,.12);
-    }
-    input.error { border-color: #ef4444; }
-    textarea { resize: vertical; min-height: 56px; }
-
-    .actions { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
-    button {
-      padding: 8px 16px;
+    /* ============ Actions ============ */
+    .actions { display: flex; gap: 7px; align-items: center; margin-top: 3px; }
+    button.btn {
+      padding: 7px 14px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font: 600 12px inherit;
       transition: opacity .15s;
     }
-    button:hover { opacity: 0.88; }
-    .btn-primary { background: linear-gradient(135deg, #4f8cff, #7a5cff); color: #fff; }
-    .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
-    .status { font-size: 12px; color: #16a34a; }
-    .status.err { color: #ef4444; }
+    button.btn:hover { opacity: .88; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+      color: #fff;
+    }
+    .btn-secondary {
+      background: var(--kbd-bg);
+      color: var(--text-sec);
+      border: 1px solid var(--border);
+    }
+    .status { font-size: 11.5px; color: var(--success); }
+    .status.err { color: var(--danger); }
 
+    /* ============ Footer ============ */
     .footer {
-      border-top: 1px solid #e5e7eb;
-      padding: 8px 16px;
-      font-size: 11px;
-      color: #9ca3af;
+      border-top: 1px solid var(--border);
+      padding: 6px 13px;
+      font-size: 10.5px;
+      color: var(--text-mute);
       display: flex;
       justify-content: space-between;
     }
-    .footer a { color: #6b7280; text-decoration: none; }
+    .footer a { color: var(--text-sec); text-decoration: none; }
     .footer a:hover { text-decoration: underline; }
   </style>
 </head>
-<body>
+<body data-theme="aurora">
   <div class="header">
     <img src="icons/icon48.png" alt="icon" />
     <div class="header-text">
       <h1>AI Screenshot Explainer</h1>
       <p>由豆包多模态大模型驱动</p>
+    </div>
+    <div class="themes" id="themes" title="切换皮肤">
+      <button class="theme-dot" data-theme="aurora" title="Aurora"></button>
+      <button class="theme-dot" data-theme="dark"   title="Dark"></button>
+      <button class="theme-dot" data-theme="sakura" title="Sakura"></button>
+      <button class="theme-dot" data-theme="mono"   title="Mono"></button>
     </div>
   </div>
 
@@ -164,28 +317,32 @@
 
   <div class="body">
     <div class="usage">
-      按 <span class="kbd">Alt+S</span> 后拖拽框选任意区域 · 右键或 <span class="kbd">Esc</span> 取消
+      按 <span class="kbd">Alt+S</span> 拖拽框选 · 右键 / <span class="kbd">Esc</span> 取消
     </div>
 
     <div class="field">
-      <label for="apiKey">API Key <span style="color:#ef4444">*</span></label>
-      <input id="apiKey" type="password" placeholder="填入火山方舟 API Key（ark-...）" />
-      <div class="key-links">
-        <a id="getApiKey" href="#">没有 Key？点这里 →</a>
-        <a id="volcengineLink" href="#">前往火山引擎 →</a>
+      <div class="field-header">
+        <label for="apiKey">API Key <span class="required">*</span></label>
+        <div class="key-chips">
+          <a id="getApiKey" class="key-chip" href="#">没有 Key？</a>
+          <a id="volcengineLink" class="key-chip" href="#">火山引擎 →</a>
+        </div>
       </div>
+      <input id="apiKey" type="password" placeholder="填入火山方舟 API Key（ark-...）" />
       <div class="hint">仅存储在本地，不上传任何第三方。</div>
     </div>
 
-    <div class="field">
-      <label for="model">模型</label>
-      <input id="model" type="text" placeholder="doubao-seed-2-0-mini-260428" />
-    </div>
-
-    <div class="field">
-      <label for="endpoint">Endpoint</label>
-      <input id="endpoint" type="text" placeholder="https://ark.cn-beijing.volces.com/api/v3/responses" />
-    </div>
+    <details class="advanced" id="advanced">
+      <summary>高级设置（模型 / Endpoint）</summary>
+      <div class="field">
+        <label for="model">模型</label>
+        <input id="model" type="text" placeholder="doubao-seed-2-0-mini-260428" />
+      </div>
+      <div class="field">
+        <label for="endpoint">Endpoint</label>
+        <input id="endpoint" type="text" placeholder="https://ark.cn-beijing.volces.com/api/v3/responses" />
+      </div>
+    </details>
 
     <div class="field">
       <label for="prompt" id="presetLabel">Prompt 模板</label>
@@ -194,8 +351,8 @@
     </div>
 
     <div class="actions">
-      <button class="btn-primary" id="save">保存</button>
-      <button class="btn-secondary" id="reset">恢复默认</button>
+      <button class="btn btn-primary" id="save">保存</button>
+      <button class="btn btn-secondary" id="reset">恢复默认</button>
       <span class="status" id="status"></span>
     </div>
   </div>

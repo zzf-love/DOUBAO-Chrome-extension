@@ -1,5 +1,6 @@
 const PRESET_IDS = ["general", "ocr", "translate", "visual", "paper", "code"];
 const CUSTOM_SLOT_COUNT = 3;
+const THEMES = ["aurora", "dark", "sakura", "mono"];
 
 const i18n = (k) => chrome.i18n.getMessage(k) || "";
 
@@ -18,13 +19,12 @@ const DEFAULTS = {
   model: "doubao-seed-2-0-mini-260428",
   prompt: PRESETS[0].prompt,
   customPrompts: ["", "", ""],
+  theme: "aurora",
 };
 
 const $ = (id) => document.getElementById(id);
 
 let customPrompts = ["", "", ""];
-// When a custom slot is selected, edits to the textarea bind to that slot.
-// null means a built-in preset / free-form prompt is active.
 let activeCustomIndex = null;
 
 function renderPresets() {
@@ -142,6 +142,7 @@ async function load() {
       ? data.customPrompts.map((s) => (typeof s === "string" ? s : ""))
       : ["", "", ""];
   activeCustomIndex = null;
+  applyTheme(data.theme || "aurora", false);
 
   const noKey = !$("apiKey").value.trim();
   $("noKeyAlert").style.display = noKey ? "block" : "none";
@@ -213,6 +214,15 @@ function applyI18nLabels() {
   }
 }
 
+function applyTheme(theme, persist = true) {
+  if (!THEMES.includes(theme)) theme = "aurora";
+  document.body.dataset.theme = theme;
+  for (const btn of document.querySelectorAll(".theme-dot")) {
+    btn.classList.toggle("active", btn.dataset.theme === theme);
+  }
+  if (persist) chrome.storage.local.set({ theme });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   applyI18nLabels();
   load();
@@ -226,4 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $("apiKey").classList.toggle("error", noKey);
   });
   $("prompt").addEventListener("input", onPromptInput);
+  for (const btn of document.querySelectorAll(".theme-dot")) {
+    btn.addEventListener("click", () => applyTheme(btn.dataset.theme));
+  }
 });
