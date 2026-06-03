@@ -212,6 +212,8 @@ function applyI18nLabels() {
     const msg = i18n(key);
     if (msg && $(id)) $(id).textContent = msg;
   }
+  const v = chrome.runtime.getManifest().version;
+  if ($("version")) $("version").textContent = "v" + v;
 }
 
 function applyTheme(theme, persist = true) {

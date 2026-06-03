@@ -46,8 +46,8 @@
     "message": "You are a senior engineer. Analyze this code screenshot:\n\n1. In 2-3 sentences, explain what the code does.\n2. Walk through key logic by block (not line-by-line).\n3. Flag potential bugs, performance issues, or security concerns (skip if none).\n4. If the code is incomplete or context is ambiguous, state 'cannot determine X'.\n\nPreserve all identifiers (variable/function names) in their original form."
   },
 
-  "getApiKey": { "message": "Need a key?" },
-  "volcengineLink": { "message": "Volcengine →" },
+  "getApiKey": { "message": "Get a free key" },
+  "volcengineLink": { "message": "Volcengine console" },
   "presetLabel": { "message": "Prompt preset" },
   "customLabel": { "message": "Custom" },
   "customTipEmpty": { "message": "Click to select, then write your own prompt below (auto-saved)" },

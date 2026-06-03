@@ -7,6 +7,8 @@
     :root {
       --brand-from: #4f8cff;
       --brand-to:   #7a5cff;
+      --header-from: #4f8cff;
+      --header-to:   #7a5cff;
       --bg:         #f8f9fc;
       --surface:    #ffffff;
       --border:     #e5e7eb;
@@ -24,6 +26,8 @@
     body[data-theme="dark"] {
       --brand-from: #6b8eff;
       --brand-to:   #a78bff;
+      --header-from: #1c2230;
+      --header-to:   #2a2440;
       --bg:         #0f1419;
       --surface:    #1c2128;
       --border:     #2d333b;
@@ -41,6 +45,8 @@
     body[data-theme="sakura"] {
       --brand-from: #f472b6;
       --brand-to:   #c084fc;
+      --header-from: #f472b6;
+      --header-to:   #c084fc;
       --bg:         #fdf2f8;
       --surface:    #ffffff;
       --border:     #fbcfe8;
@@ -58,6 +64,8 @@
     body[data-theme="mono"] {
       --brand-from: #404040;
       --brand-to:   #0a0a0a;
+      --header-from: #262626;
+      --header-to:   #0a0a0a;
       --bg:         #fafafa;
       --surface:    #ffffff;
       --border:     #e5e5e5;
@@ -85,7 +93,7 @@
 
     /* ============ Header ============ */
     .header {
-      background: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+      background: linear-gradient(135deg, var(--header-from), var(--header-to));
       color: #fff;
       padding: 10px 12px 9px;
       display: flex;
@@ -332,6 +340,12 @@
       <div class="hint">仅存储在本地，不上传任何第三方。</div>
     </div>
 
+    <div class="field">
+      <label for="prompt" id="presetLabel">Prompt 模板</label>
+      <div class="presets" id="presets"></div>
+      <textarea id="prompt"></textarea>
+    </div>
+
     <details class="advanced" id="advanced">
       <summary>高级设置（模型 / Endpoint）</summary>
       <div class="field">
@@ -344,12 +358,6 @@
       </div>
     </details>
 
-    <div class="field">
-      <label for="prompt" id="presetLabel">Prompt 模板</label>
-      <div class="presets" id="presets"></div>
-      <textarea id="prompt"></textarea>
-    </div>
-
     <div class="actions">
       <button class="btn btn-primary" id="save">保存</button>
       <button class="btn btn-secondary" id="reset">恢复默认</button>
@@ -358,7 +366,7 @@
   </div>
 
   <div class="footer">
-    <span>v1.3.0</span>
+    <span id="version">v1.3.0</span>
     <a href="https://github.com/zzf-love/DOUBAO-Chrome-extension" target="_blank">GitHub</a>
     <a href="https://zzf-love.github.io/DOUBAO-Chrome-extension/privacy.html" target="_blank">隐私政策</a>
   </div>
