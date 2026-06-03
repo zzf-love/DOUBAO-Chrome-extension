@@ -154,6 +154,13 @@
       font-size: 11px;
       color: var(--text-mute);
     }
+    .usage-alt a {
+      color: var(--brand-from);
+      text-decoration: none;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+    .usage-alt a:hover { text-decoration: underline; }
     .kbd {
       display: inline-block;
       background: var(--kbd-bg);
@@ -336,7 +343,9 @@
   <div class="body">
     <div class="usage">
       按 <span class="kbd">Alt+S</span> 拖拽框选 · 右键 / <span class="kbd">Esc</span> 取消
-      <span class="usage-alt">主键无效时按备用键 <span class="kbd">Alt+Shift+S</span></span>
+      <span class="usage-alt">
+        主键无效时用 <span class="kbd">Alt+Shift+S</span>，或<a id="customShortcut" href="#">自定义 →</a>
+      </span>
     </div>
 
     <div class="field">

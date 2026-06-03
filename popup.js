@@ -202,6 +202,12 @@ function openVolcengine(e) {
   });
 }
 
+function openShortcutSettings(e) {
+  e.preventDefault();
+  // Chrome restricts chrome:// URLs but allows this specific shortcuts page.
+  chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
+}
+
 function applyI18nLabels() {
   const map = {
     presetLabel: "presetLabel",
@@ -232,6 +238,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("reset").addEventListener("click", reset);
   $("getApiKey").addEventListener("click", openApiKeyPage);
   $("volcengineLink").addEventListener("click", openVolcengine);
+  const cs = $("customShortcut");
+  if (cs) cs.addEventListener("click", openShortcutSettings);
   $("apiKey").addEventListener("input", () => {
     const noKey = !$("apiKey").value.trim();
     $("noKeyAlert").style.display = noKey ? "block" : "none";
