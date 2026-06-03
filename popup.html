@@ -56,16 +56,21 @@
 
     label { display: block; font-weight: 600; font-size: 12px; color: #374151; margin-bottom: 4px; }
     .field { margin-bottom: 12px; }
-    .label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-    .label-row label { margin-bottom: 0; }
-    .get-key {
+
+    .key-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 5px;
+    }
+    .key-links a {
       font-size: 11px;
       font-weight: 500;
       color: #4f8cff;
       text-decoration: none;
       cursor: pointer;
     }
-    .get-key:hover { text-decoration: underline; }
+    .key-links a:hover { text-decoration: underline; }
 
     .presets {
       display: flex;
@@ -85,23 +90,21 @@
       transition: border-color .15s, color .15s, background .15s;
     }
     .preset:hover { border-color: #4f8cff; color: #4f8cff; }
-    .preset.active {
+    .preset.custom { border-style: dashed; color: #9ca3af; }
+    .preset.custom:hover { border-style: solid; color: #4f8cff; }
+    .preset.custom.filled { border-style: solid; border-color: #4f8cff; color: #4f8cff; background: #fff; }
+    /* active wins over filled — must stay last so white text sits on the gradient */
+    .preset.active,
+    .preset.custom.active {
       background: linear-gradient(135deg, #4f8cff, #7a5cff);
       color: #fff;
       border-color: transparent;
+      border-style: solid;
     }
-    .preset.active:hover { color: #fff; }
-    .preset.custom { border-style: dashed; color: #9ca3af; }
-    .preset.custom:hover { border-style: solid; }
-    .preset.custom.filled { border-style: solid; border-color: #4f8cff; color: #4f8cff; }
-    .preset.custom.active { border-style: solid; }
+    .preset.active:hover,
+    .preset.custom.active:hover { color: #fff; }
 
-    .hint-link {
-      color: #4f8cff;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .hint-link:hover { text-decoration: underline; }
+    .hint { font-size: 11px; color: #9ca3af; margin-top: 3px; }
     input, textarea {
       width: 100%;
       padding: 7px 10px;
@@ -118,7 +121,6 @@
     }
     input.error { border-color: #ef4444; }
     textarea { resize: vertical; min-height: 56px; }
-    .hint { font-size: 11px; color: #9ca3af; margin-top: 3px; }
 
     .actions { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
     button {
@@ -166,15 +168,13 @@
     </div>
 
     <div class="field">
-      <div class="label-row">
-        <label for="apiKey">API Key <span style="color:#ef4444">*</span></label>
-        <a class="get-key" id="getApiKey" href="#">没有 Key？点这里 →</a>
-      </div>
+      <label for="apiKey">API Key <span style="color:#ef4444">*</span></label>
       <input id="apiKey" type="password" placeholder="填入火山方舟 API Key（ark-...）" />
-      <div class="hint">
-        仅存储在本地，不上传任何第三方 ·
-        <a class="hint-link" id="volcengineLink" href="#">前往火山引擎 →</a>
+      <div class="key-links">
+        <a id="getApiKey" href="#">没有 Key？点这里 →</a>
+        <a id="volcengineLink" href="#">前往火山引擎 →</a>
       </div>
+      <div class="hint">仅存储在本地，不上传任何第三方。</div>
     </div>
 
     <div class="field">

@@ -23,12 +23,14 @@ const DEFAULTS = {
 const $ = (id) => document.getElementById(id);
 
 let customPrompts = ["", "", ""];
+// When a custom slot is selected, edits to the textarea bind to that slot.
+// null means a built-in preset / free-form prompt is active.
+let activeCustomIndex = null;
 
 function renderPresets() {
   const host = $("presets");
   host.textContent = "";
 
-  // built-in presets
   for (const p of PRESETS) {
     const btn = document.createElement("button");
     btn.type = "button";
@@ -36,15 +38,10 @@ function renderPresets() {
     btn.dataset.preset = p.id;
     btn.textContent = p.label;
     btn.title = p.prompt.slice(0, 80) + (p.prompt.length > 80 ? "…" : "");
-    btn.addEventListener("click", () => {
-      $("prompt").value = p.prompt;
-      syncActivePreset();
-      schedulePromptSave();
-    });
+    btn.addEventListener("click", () => selectPreset(p));
     host.appendChild(btn);
   }
 
-  // custom slots
   const customLabel = i18n("customLabel") || "自定义";
   const tipEmpty = i18n("customTipEmpty");
   const tipFilled = i18n("customTipFilled");
@@ -58,51 +55,51 @@ function renderPresets() {
     btn.title = filled
       ? `${tipFilled}\n\n${customPrompts[i].slice(0, 80)}${customPrompts[i].length > 80 ? "…" : ""}`
       : tipEmpty;
-    btn.addEventListener("click", () => handleCustomClick(i));
+    btn.addEventListener("click", () => selectCustom(i));
     btn.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      handleCustomClear(i);
+      clearCustom(i);
     });
     host.appendChild(btn);
   }
-  syncActivePreset();
+  syncActive();
 }
 
-function handleCustomClick(i) {
-  if (customPrompts[i]) {
-    $("prompt").value = customPrompts[i];
-    syncActivePreset();
-    schedulePromptSave();
-    return;
-  }
-  const cur = $("prompt").value.trim();
-  if (!cur) {
-    alert(i18n("customNeedPrompt") || "请先在下方输入要保存的 Prompt");
-    return;
-  }
-  customPrompts[i] = cur;
-  chrome.storage.local.set({ customPrompts });
-  renderPresets();
+function selectPreset(p) {
+  activeCustomIndex = null;
+  $("prompt").value = p.prompt;
+  syncActive();
+  schedulePromptSave();
 }
 
-function handleCustomClear(i) {
+// Click a custom slot: select it and load its content (empty = ready to write).
+function selectCustom(i) {
+  activeCustomIndex = i;
+  $("prompt").value = customPrompts[i] || "";
+  syncActive();
+  $("prompt").focus();
+  schedulePromptSave();
+}
+
+function clearCustom(i) {
   if (!customPrompts[i]) return;
   if (!confirm(i18n("customConfirmClear") || "清除这个自定义 Prompt？")) return;
   customPrompts[i] = "";
+  if (activeCustomIndex === i) $("prompt").value = "";
   chrome.storage.local.set({ customPrompts });
   renderPresets();
+  schedulePromptSave();
 }
 
-function syncActivePreset() {
+function syncActive() {
   const cur = $("prompt").value.trim();
   for (const btn of $("presets").querySelectorAll(".preset")) {
     let match = false;
     if (btn.dataset.preset) {
       const p = PRESETS.find((x) => x.id === btn.dataset.preset);
-      match = p && p.prompt.trim() === cur;
+      match = activeCustomIndex === null && p && p.prompt.trim() === cur;
     } else if (btn.dataset.custom !== undefined) {
-      const slot = customPrompts[Number(btn.dataset.custom)];
-      match = !!slot && slot.trim() === cur;
+      match = activeCustomIndex === Number(btn.dataset.custom);
     }
     btn.classList.toggle("active", !!match);
   }
@@ -112,8 +109,26 @@ let saveTimer = null;
 function schedulePromptSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    chrome.storage.local.set({ prompt: $("prompt").value.trim() || PRESETS[0].prompt });
+    const text = $("prompt").value.trim();
+    const patch = { prompt: text || PRESETS[0].prompt };
+    // If a custom slot is active, persist edits into that slot too.
+    if (activeCustomIndex !== null) {
+      customPrompts[activeCustomIndex] = $("prompt").value;
+      patch.customPrompts = customPrompts;
+    }
+    chrome.storage.local.set(patch);
   }, 400);
+}
+
+function onPromptInput() {
+  if (activeCustomIndex !== null) {
+    customPrompts[activeCustomIndex] = $("prompt").value;
+    // toggle the slot's filled border live
+    const btn = $("presets").querySelector(`.preset.custom[data-custom="${activeCustomIndex}"]`);
+    if (btn) btn.classList.toggle("filled", !!$("prompt").value.trim());
+  }
+  syncActive();
+  schedulePromptSave();
 }
 
 async function load() {
@@ -122,9 +137,11 @@ async function load() {
   $("endpoint").value = data.endpoint ?? DEFAULTS.endpoint;
   $("model").value = data.model ?? DEFAULTS.model;
   $("prompt").value = data.prompt ?? DEFAULTS.prompt;
-  customPrompts = Array.isArray(data.customPrompts) && data.customPrompts.length === CUSTOM_SLOT_COUNT
-    ? data.customPrompts.map((s) => (typeof s === "string" ? s : ""))
-    : ["", "", ""];
+  customPrompts =
+    Array.isArray(data.customPrompts) && data.customPrompts.length === CUSTOM_SLOT_COUNT
+      ? data.customPrompts.map((s) => (typeof s === "string" ? s : ""))
+      : ["", "", ""];
+  activeCustomIndex = null;
 
   const noKey = !$("apiKey").value.trim();
   $("noKeyAlert").style.display = noKey ? "block" : "none";
@@ -153,7 +170,7 @@ async function save() {
 }
 
 async function reset() {
-  // Reset only API / model / endpoint / prompt; keep customPrompts intact
+  // Reset only API / model / endpoint / prompt; keep customPrompts intact.
   await chrome.storage.local.set({
     apiKey: DEFAULTS.apiKey,
     endpoint: DEFAULTS.endpoint,
@@ -185,12 +202,15 @@ function openVolcengine(e) {
 }
 
 function applyI18nLabels() {
-  const presetLabel = i18n("presetLabel");
-  if (presetLabel) $("presetLabel").textContent = presetLabel;
-  const getKey = i18n("getApiKey");
-  if (getKey) $("getApiKey").textContent = getKey;
-  const vol = i18n("volcengineLink");
-  if (vol) $("volcengineLink").textContent = vol;
+  const map = {
+    presetLabel: "presetLabel",
+    getApiKey: "getApiKey",
+    volcengineLink: "volcengineLink",
+  };
+  for (const [id, key] of Object.entries(map)) {
+    const msg = i18n(key);
+    if (msg && $(id)) $(id).textContent = msg;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -205,8 +225,5 @@ document.addEventListener("DOMContentLoaded", () => {
     $("noKeyAlert").style.display = noKey ? "block" : "none";
     $("apiKey").classList.toggle("error", noKey);
   });
-  $("prompt").addEventListener("input", () => {
-    syncActivePreset();
-    schedulePromptSave();
-  });
+  $("prompt").addEventListener("input", onPromptInput);
 });

@@ -50,8 +50,7 @@
   "volcengineLink": { "message": "Volcengine console →" },
   "presetLabel": { "message": "Prompt preset" },
   "customLabel": { "message": "Custom" },
-  "customTipEmpty": { "message": "Click: save the current prompt here" },
-  "customTipFilled": { "message": "Click: load this prompt | Right-click: clear" },
-  "customNeedPrompt": { "message": "Enter a prompt below first." },
+  "customTipEmpty": { "message": "Click to select, then write your own prompt below (auto-saved)" },
+  "customTipFilled": { "message": "Click: load & edit | Right-click: clear" },
   "customConfirmClear": { "message": "Clear this custom prompt?" }
 }

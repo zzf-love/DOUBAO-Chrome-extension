@@ -50,8 +50,7 @@
   "volcengineLink": { "message": "前往火山引擎 →" },
   "presetLabel": { "message": "Prompt 模板" },
   "customLabel": { "message": "自定义" },
-  "customTipEmpty": { "message": "点击：把当前 Prompt 存到这里" },
-  "customTipFilled": { "message": "点击：载入此 Prompt｜右键：清除" },
-  "customNeedPrompt": { "message": "请先在下方输入要保存的 Prompt" },
+  "customTipEmpty": { "message": "点击选中，在下方文本框编写你自己的 Prompt（自动保存）" },
+  "customTipFilled": { "message": "点击：载入并编辑此 Prompt｜右键：清除" },
   "customConfirmClear": { "message": "清除这个自定义 Prompt？" }
 }
