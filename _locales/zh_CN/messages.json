@@ -18,5 +18,34 @@
   "commandDesc": {
     "message": "开始框选区域并交给 AI 解读",
     "description": "Keyboard shortcut description."
-  }
+  },
+
+  "preset_general_label":   { "message": "通用" },
+  "preset_ocr_label":       { "message": "转录文字" },
+  "preset_translate_label": { "message": "翻译" },
+  "preset_reverse_label":   { "message": "反推提示词" },
+  "preset_paper_label":     { "message": "读论文" },
+  "preset_code_label":      { "message": "代码解释" },
+
+  "preset_general_prompt": {
+    "message": "请用简体中文解析这张截图里的内容。如果是文字，请先把可见文字完整转录出来（保留结构），再用一段话解释其含义、出处或背景。如果是图表/界面/代码，请说明它在表达什么。回答要准确、简洁，避免空话。"
+  },
+  "preset_ocr_prompt": {
+    "message": "只把这张图里的可见文字按原版式完整转录出来，不要解释、不要总结、不要添加任何说明。保留段落、列表、表格结构。"
+  },
+  "preset_translate_prompt": {
+    "message": "把这张截图里的所有可见文字翻译成简体中文，保留原排版（段落、列表、表格、代码块）。不要解释，不要总结，直接给翻译结果。专有名词第一次出现时用括号附原文。"
+  },
+  "preset_reverse_prompt": {
+    "message": "你是 AI 绘画提示词专家。深入分析这张图：\n\n1. 用一段完整英文 prompt 描述这张图（适合 Midjourney / Stable Diffusion 直接使用），覆盖：主体、动作、场景、光照、构图、镜头、画风、色调、材质、细节质感等。\n2. 单独列出几个关键风格关键词（artistic style / art movement / render engine / camera lens 等）。\n3. 用简体中文一句话总结这张图的视觉特点和情绪。\n\n只输出结果，不要解释你的工作过程。"
+  },
+  "preset_paper_prompt": {
+    "message": "你是计算机/AI/工程领域的资深审稿人，在帮我快速消化一张论文截图。\n\n直接输出，不要前言：\n\n1. 位置定位：判断截图属于论文哪一节（§3.2 Method / §4 Experiments / Table 2 / Figure 3 等，从上下文推断）。\n2. 核心 claim：一句话提炼这段/这张图想证明什么。\n3. 关键技术细节：\n   - 若是方法：关键设计选择 + 与已有工作的差异（vs 具体 baseline）\n   - 若是实验：baseline、metric、数据集、显著性（含 std / p-value 若给出）\n   - 若是公式：一句话讲推导动机，不逐符号解释\n   - 若是图表：x/y 轴含义、对照组、关键 gap 量级\n4. 可疑或值得追问的点：审稿人视角 1-2 条（ablation 缺失、baseline 偏弱、claim 与图不一致等）。\n\n术语保留英文（attention / ablation / SOTA / baseline / loss 等不翻译）。回答紧凑，禁用\"这是论文中常见的…\"类废话。"
+  },
+  "preset_code_prompt": {
+    "message": "你是资深工程师。分析这张代码截图：\n\n1. 用 2-3 句话解释这段代码做什么。\n2. 逐段说明关键逻辑（不要逐行）。\n3. 指出潜在 bug、性能问题、安全隐患（没有就不写）。\n4. 如果代码不完整或上下文模糊，明确指出\"无法确定 X\"。\n\n所有标识符（变量名/函数名）保留原文，不要翻译。"
+  },
+
+  "getApiKey": { "message": "没有 Key？点这里 →" },
+  "presetLabel": { "message": "Prompt 模板" }
 }

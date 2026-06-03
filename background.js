@@ -1,6 +1,10 @@
 const DEFAULT_ENDPOINT = "https://ark.cn-beijing.volces.com/api/v3/responses";
 const DEFAULT_MODEL = "doubao-seed-2-0-mini-260428";
-const DEFAULT_PROMPT = "请用简体中文解析这张截图里的内容。如果是文字，请先把可见文字完整转录出来（保留结构），再用一段话解释其含义、出处或背景。如果是图表/界面/代码，请说明它在表达什么。回答要准确、简洁，避免空话。";
+
+function defaultPrompt() {
+  return chrome.i18n.getMessage("preset_general_prompt") ||
+    "请用简体中文解析这张截图里的内容。回答要准确、简洁。";
+}
 
 async function getConfig() {
   const data = await chrome.storage.local.get(["apiKey", "endpoint", "model", "prompt"]);
@@ -8,7 +12,7 @@ async function getConfig() {
     apiKey: data.apiKey || "",
     endpoint: data.endpoint || DEFAULT_ENDPOINT,
     model: data.model || DEFAULT_MODEL,
-    prompt: data.prompt || DEFAULT_PROMPT
+    prompt: data.prompt || defaultPrompt()
   };
 }
 

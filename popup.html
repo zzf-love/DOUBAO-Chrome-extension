@@ -56,6 +56,40 @@
 
     label { display: block; font-weight: 600; font-size: 12px; color: #374151; margin-bottom: 4px; }
     .field { margin-bottom: 12px; }
+    .label-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+    .label-row label { margin-bottom: 0; }
+    .get-key {
+      font-size: 11px;
+      font-weight: 500;
+      color: #4f8cff;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .get-key:hover { text-decoration: underline; }
+
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 6px;
+    }
+    .preset {
+      padding: 3px 9px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      border-radius: 100px;
+      font: 500 11px inherit;
+      cursor: pointer;
+      color: #4b5563;
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .preset:hover { border-color: #4f8cff; color: #4f8cff; }
+    .preset.active {
+      background: linear-gradient(135deg, #4f8cff, #7a5cff);
+      color: #fff;
+      border-color: transparent;
+    }
+    .preset.active:hover { color: #fff; }
     input, textarea {
       width: 100%;
       padding: 7px 10px;
@@ -120,7 +154,10 @@
     </div>
 
     <div class="field">
-      <label for="apiKey">API Key <span style="color:#ef4444">*</span></label>
+      <div class="label-row">
+        <label for="apiKey">API Key <span style="color:#ef4444">*</span></label>
+        <a class="get-key" id="getApiKey" href="#">没有 Key？点这里 →</a>
+      </div>
       <input id="apiKey" type="password" placeholder="填入火山方舟 API Key（ark-...）" />
       <div class="hint">仅存储在本地，不上传任何第三方。</div>
     </div>
@@ -136,7 +173,8 @@
     </div>
 
     <div class="field">
-      <label for="prompt">默认 Prompt</label>
+      <label for="prompt" id="presetLabel">Prompt 模板</label>
+      <div class="presets" id="presets"></div>
       <textarea id="prompt"></textarea>
     </div>
 
@@ -148,7 +186,7 @@
   </div>
 
   <div class="footer">
-    <span>v1.2.0</span>
+    <span>v1.3.0</span>
     <a href="https://github.com/zzf-love/DOUBAO-Chrome-extension" target="_blank">GitHub</a>
     <a href="https://zzf-love.github.io/DOUBAO-Chrome-extension/privacy.html" target="_blank">隐私政策</a>
   </div>

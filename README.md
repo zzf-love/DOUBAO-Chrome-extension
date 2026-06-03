@@ -3,7 +3,7 @@
 > 在任意网页按 **Alt+S** 拖拽框选，豆包多模态 AI 自动解读截图内容，结果留在右上角浮动面板——不打断浏览。
 
 ![status](https://img.shields.io/badge/Chrome%20Web%20Store-审核中-blue)
-![version](https://img.shields.io/badge/version-1.2.0-green)
+![version](https://img.shields.io/badge/version-1.3.0-green)
 ![manifest](https://img.shields.io/badge/manifest-v3-orange)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
@@ -111,6 +111,7 @@ STORE_LISTING.md      # CWS 商店详情页文案
 
 ## 版本
 
+- **v1.3.0**：6 个 Prompt 预设（通用 / 转录 / 翻译 / 反推提示词 / 读论文 / 代码解释），药丸标签一键切换；API Key label 旁加 "没有 Key？" 链接，按浏览器语言分流到小红书 / X
 - **v1.2.0**：i18n（中/英双语自动切换 — 中文名"AI 截图解读"、英文名"AI Screenshot Explainer"）；移除 `<all_urls>` 静态 `content_scripts`，改为 `activeTab` 动态注入（缩窄权限范围、加快审核）
 - **v1.1.2**：缩短 manifest description 至 132 字以内（CWS 上传要求）
 - **v1.1.1**：浮动面板"关闭"按钮加宽到 48px，更易点击
