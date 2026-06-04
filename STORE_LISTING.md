@@ -201,6 +201,26 @@ The default AI endpoint is Volcengine Ark (Doubao). This host permission is requ
 No remote code is loaded or executed. All JS/CSS is bundled in the extension package. The extension only sends image data to the user-configured API endpoint and renders the returned text.
 ```
 
+## 测试说明 (Test instructions for reviewers) — 最多 500 字
+
+```
+扩展需要用户提供 Volcengine Ark (Doubao) API Key。
+
+测试步骤：
+1. 在 https://www.volcengine.com/product/ark 申请 API Key（有免费额度），格式以 "ark-" 开头
+2. 点工具栏扩展图标，把 Key 粘到 "API Key" 字段，点"保存"
+3. 打开任意普通网页，按 Alt+S（备用 Alt+Shift+S）
+4. 鼠标拖拽框选任意区域；右键或 Esc 取消
+5. 浮动面板会显示 AI 解读结果
+
+v1.3 更新（无新权限 / 无远程代码）：
+- Prompt 模板：6 内置 + 3 自定义槽，popup 药丸切换
+- 3 套皮肤切换：Aurora / Dark / Sakura
+- PDF / chrome:// 受限页面自动回退全屏模式
+
+默认 endpoint / 模型 / Prompt 可在弹窗中修改。扩展不内置 API Key。如无法获取测试 Key 请通过 GitHub Issues 联系开发者。
+```
+
 ## 隐私政策 URL
 
 ```
