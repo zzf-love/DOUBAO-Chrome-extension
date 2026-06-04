@@ -1,15 +1,14 @@
 """
-Render the real popup.html via headless Chromium, then compose a 1280x800
-store screenshot with a bilingual brand banner. Pixel-perfect mock of the
-v1.3.4 popup with sample API Key already filled in.
+Render the v1.3.7 popup in 3 themes via headless Chromium and compose a
+1280x800 CWS store screenshot showing Aurora as the main popup plus
+Dark/Sakura thumbnails on the right — so the viewer can actually see
+the theme difference, not just read about it.
 """
 import json
-import re
 import tempfile
-import os
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 REPO = Path("/home/user/DOUBAO-Chrome-extension")
 OUT = REPO / "store"
@@ -22,17 +21,15 @@ BANNER_GRAD_FROM = (79, 140, 255)
 BANNER_GRAD_TO   = (122, 92, 255)
 BG = (248, 249, 252)
 
-# Load zh_CN messages so we can shim chrome.i18n.getMessage
+# ----- Stage temp dir with the popup files + a shim -----
 zh = json.load(open(REPO / "_locales/zh_CN/messages.json"))
 i18n_map = {k: v["message"] for k, v in zh.items()}
 
-# Read popup.html and inject a shim
-popup_html = (REPO / "popup.html").read_text()
 shim = f"""
 <script>
 window.chrome = {{
   runtime: {{
-    getManifest: () => ({{ version: "1.3.4" }}),
+    getManifest: () => ({{ version: "1.3.7" }}),
     sendMessage: () => Promise.resolve({{ ok: true }}),
     onMessage: {{ addListener: () => {{}} }},
   }},
@@ -42,8 +39,6 @@ window.chrome = {{
   }},
   storage: {{
     local: {{
-      // Pre-fill apiKey so the warning banner doesn't show, simulating a
-      // configured user; pendingCapture absent.
       get: (keys, cb) => {{
         const data = {{
           apiKey: "ark-2024xxxxxxxxxxxxxxxxxxxxxx",
@@ -60,53 +55,57 @@ window.chrome = {{
       }},
       set: (obj, cb) => {{ if (cb) cb(); return Promise.resolve(); }},
       remove: () => Promise.resolve(),
-    }}
+    }},
+    onChanged: {{ addListener: () => {{}} }},
   }},
   tabs: {{ create: () => {{}} }},
 }};
 </script>
 """
+
+popup_html = (REPO / "popup.html").read_text()
 patched = popup_html.replace("<head>", "<head>" + shim, 1)
 
-with tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8") as f:
-    # Inline scripts/css continue to resolve relative to file: ; copy popup.js
-    # and icons into the temp dir.
-    tmp_dir = Path(tempfile.mkdtemp())
-    (tmp_dir / "popup.js").write_text((REPO / "popup.js").read_text())
-    (tmp_dir / "icons").mkdir(exist_ok=True)
-    for name in ["icon16.png", "icon48.png", "icon128.png"]:
-        (tmp_dir / "icons" / name).write_bytes((REPO / "icons" / name).read_bytes())
-    tmp_html = tmp_dir / "popup.html"
-    tmp_html.write_text(patched)
+tmp_dir = Path(tempfile.mkdtemp())
+(tmp_dir / "popup.js").write_text((REPO / "popup.js").read_text())
+(tmp_dir / "icons").mkdir(exist_ok=True)
+for n in ["icon16.png", "icon48.png", "icon128.png"]:
+    (tmp_dir / "icons" / n).write_bytes((REPO / "icons" / n).read_bytes())
+(tmp_dir / "popup.html").write_text(patched)
+tmp_html = tmp_dir / "popup.html"
+print(f"staged at {tmp_html}")
 
-print(f"Rendering popup from {tmp_html} ...")
+# ----- Render popup at 3 themes in one session -----
+def render_themes():
+    out = {}
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            executable_path="/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
+        )
+        ctx = browser.new_context(
+            viewport={"width": 360, "height": 800},
+            device_scale_factor=2,
+        )
+        page = ctx.new_page()
+        page.goto(f"file://{tmp_html}")
+        page.wait_for_timeout(500)
+        for theme in ["aurora", "dark", "sakura"]:
+            # applyTheme is a top-level function in popup.js
+            page.evaluate(f"applyTheme('{theme}', false)")
+            page.wait_for_timeout(120)
+            box = page.locator("body").bounding_box()
+            shot = page.screenshot(clip={
+                "x": 0, "y": 0,
+                "width": box["width"], "height": box["height"]
+            })
+            out[theme] = Image.open(__import__("io").BytesIO(shot)).convert("RGBA")
+            print(f"  rendered {theme}: {out[theme].size}")
+        browser.close()
+    return out
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(
-        executable_path="/opt/pw-browsers/chromium-1194/chrome-linux/chrome"
-    )
-    ctx = browser.new_context(
-        viewport={"width": 360, "height": 800},
-        device_scale_factor=2,  # retina for crisp text
-    )
-    page = ctx.new_page()
-    page.goto(f"file://{tmp_html}")
-    page.wait_for_timeout(500)  # let JS finish render
-    body = page.locator("body")
-    box = body.bounding_box()
-    print(f"popup body box: {box}")
-    page.screenshot(path="/tmp/popup_raw.png", clip={
-        "x": 0, "y": 0, "width": box["width"], "height": box["height"]
-    }, omit_background=False)
-    browser.close()
+themes = render_themes()
 
-raw = Image.open("/tmp/popup_raw.png").convert("RGBA")
-print(f"raw size: {raw.size}")
-
-# Compose 1280x800 store screenshot
-canvas = Image.new("RGB", TARGET, BG)
-
-# gradient banner
+# ----- Compose 1280x800 store image -----
 def gradient(w, h, c1, c2):
     im = Image.new("RGB", (w, h), c1)
     px = im.load()
@@ -120,12 +119,13 @@ def gradient(w, h, c1, c2):
             )
     return im
 
-banner = gradient(TARGET[0], BANNER_H, BANNER_GRAD_FROM, BANNER_GRAD_TO)
-canvas.paste(banner, (0, 0))
+canvas = Image.new("RGB", TARGET, BG)
+canvas.paste(gradient(TARGET[0], BANNER_H, BANNER_GRAD_FROM, BANNER_GRAD_TO), (0, 0))
 d = ImageDraw.Draw(canvas)
 
-zh_title = "设置仅存本地，6 个内置 Prompt + 3 个自定义槽 + 4 套皮肤"
-en_title = "All settings stored locally — 6 built-in prompts + 3 custom slots + 4 themes"
+# Banner text — updated for 3 themes
+zh_title = "设置仅存本地，6 个内置 Prompt + 3 个自定义槽 + 3 套皮肤"
+en_title = "All settings stored locally — 6 built-in prompts + 3 custom slots + 3 themes"
 zh_font = ImageFont.truetype(FONT_ZH, 26)
 en_font = ImageFont.truetype(FONT_ZH, 14)
 zh_bb = d.textbbox((0, 0), zh_title, font=zh_font)
@@ -136,59 +136,95 @@ d.text((40, y0), zh_title, fill=(255, 255, 255), font=zh_font)
 d.text((40, y0 + (zh_bb[3] - zh_bb[1]) + 4), en_title,
        fill=(255, 255, 255, 230), font=en_font)
 
-# Place popup on the LEFT, leaving room for feature callouts on the RIGHT.
-iw, ih = raw.size
-avail_h = TARGET[1] - BANNER_H - 50
-scale = avail_h / ih
-nw, nh = int(iw * scale), int(ih * scale)
-popup_resized = raw.resize((nw, nh), Image.LANCZOS)
-x = 70
-y = BANNER_H + 25
+# Helper: paste with drop shadow
+def paste_with_shadow(canvas_rgba, img, x, y, blur=18, shadow_alpha=70):
+    nw, nh = img.size
+    sh = Image.new("RGBA", (nw + 80, nh + 80), (0, 0, 0, 0))
+    sd = ImageDraw.Draw(sh)
+    sd.rounded_rectangle((40, 40, 40 + nw, 40 + nh), radius=20,
+                         fill=(0, 0, 0, shadow_alpha))
+    sh = sh.filter(ImageFilter.GaussianBlur(blur))
+    canvas_rgba.alpha_composite(sh, (x - 40, y - 30))
+    canvas_rgba.paste(img, (x, y), img)
 
-# drop shadow
-from PIL import ImageFilter
-shadow = Image.new("RGBA", (nw + 80, nh + 80), (0, 0, 0, 0))
-sd = ImageDraw.Draw(shadow)
-sd.rounded_rectangle((40, 40, 40 + nw, 40 + nh), radius=20, fill=(0, 0, 0, 80))
-shadow = shadow.filter(ImageFilter.GaussianBlur(20))
+# Main: Aurora on the left
+aurora_raw = themes["aurora"]
+aurora_scale = 640 / aurora_raw.size[1]  # 640px tall main
+aurora = aurora_raw.resize(
+    (int(aurora_raw.size[0] * aurora_scale), int(aurora_raw.size[1] * aurora_scale)),
+    Image.LANCZOS
+)
+ax, ay = 60, 120
+
 canvas_rgba = canvas.convert("RGBA")
-canvas_rgba.alpha_composite(shadow, (x - 40, y - 30))
-canvas_rgba.paste(popup_resized, (x, y), popup_resized)
+paste_with_shadow(canvas_rgba, aurora, ax, ay, blur=22, shadow_alpha=90)
+
+# Thumbnails: Dark + Sakura on the right, side by side
+thumb_scale = 0.42
+def make_thumb(raw):
+    return raw.resize(
+        (int(raw.size[0] * thumb_scale), int(raw.size[1] * thumb_scale)),
+        Image.LANCZOS
+    )
+
+dark = make_thumb(themes["dark"])
+sakura = make_thumb(themes["sakura"])
+
+# Layout right column: two thumbs at top
+right_x_start = ax + aurora.size[0] + 60  # 60px gap after main
+tw, th = dark.size
+
+dx = right_x_start
+dy = 140
+sx = right_x_start + tw + 35
+sy = 140
+
+paste_with_shadow(canvas_rgba, dark, dx, dy, blur=16, shadow_alpha=70)
+paste_with_shadow(canvas_rgba, sakura, sx, sy, blur=16, shadow_alpha=70)
+
 canvas = canvas_rgba.convert("RGB")
 d = ImageDraw.Draw(canvas)
 
-# Right-side callouts pointing to features.
-# Each callout: (text_zh, text_en, anchor_xy_on_popup, label_xy)
-# anchor_xy is relative to popup origin (x, y).
-popup_right = x + nw
-label_x = popup_right + 50
+# Labels under each thumbnail
+label_font = ImageFont.truetype(FONT_ZH, 22)
+sub_font = ImageFont.truetype(FONT_ZH, 14)
 
-# Anchors are in resized-popup coordinates (popup is now nw x nh).
-# Hand-tuned to land on the right UI elements.
-callouts = [
-    # (zh, en, anchor_x, anchor_y, label_y on canvas)
-    ("4 套皮肤切换",     "4 themes",         460,  32, 130),
-    ("快捷键自定义",     "Custom shortcut",  400, 184, 245),
-    ("免费领取 API Key", "Get free key",     380, 250, 360),
-    ("6 + 3 模板",       "6+3 templates",    400, 415, 475),
+def labeled(text_zh, text_en, cx, top_y):
+    bb = d.textbbox((0, 0), text_zh, font=label_font)
+    w = bb[2] - bb[0]
+    d.text((cx - w // 2, top_y), text_zh, fill=(31, 35, 41), font=label_font)
+    bb2 = d.textbbox((0, 0), text_en, font=sub_font)
+    w2 = bb2[2] - bb2[0]
+    d.text((cx - w2 // 2, top_y + 30), text_en,
+           fill=(107, 114, 128), font=sub_font)
+
+labeled("Dark 主题",   "Dark theme",   dx + tw // 2, dy + th + 14)
+labeled("Sakura 主题", "Sakura theme", sx + tw // 2, sy + th + 14)
+
+# Below thumbnails: a short check-list of v1.3 highlights
+feat_font = ImageFont.truetype(FONT_ZH, 20)
+feat_sub  = ImageFont.truetype(FONT_ZH, 13)
+feats = [
+    ("3 套皮肤实时切换", "switches the whole UI instantly"),
+    ("6 + 3 个 Prompt 模板", "6 built-in + 3 custom slots"),
+    ("快捷键可自定义",  "rebind via chrome://extensions/shortcuts"),
+    ("免费领取 API Key", "tap the link in the popup"),
 ]
+list_x = right_x_start
+list_y = dy + th + 90
+for i, (zh_, en_) in enumerate(feats):
+    yi = list_y + i * 44
+    # bullet dot
+    d.ellipse((list_x, yi + 9, list_x + 10, yi + 19),
+              fill=BANNER_GRAD_FROM)
+    d.text((list_x + 22, yi), zh_, fill=(31, 35, 41), font=feat_font)
+    d.text((list_x + 22, yi + 24), en_, fill=(107, 114, 128), font=feat_sub)
 
-cf_zh = ImageFont.truetype(FONT_ZH, 22)
-cf_en = ImageFont.truetype(FONT_ZH, 13)
+# "Aurora（默认）" label under main popup
+amain_x = ax + aurora.size[0] // 2
+amain_y = ay + aurora.size[1] + 14
+labeled("Aurora 主题（默认）", "Aurora — default", amain_x, amain_y)
 
-for zh_txt, en_txt, ax_rel, ay_rel, ly in callouts:
-    ax, ay = x + ax_rel, y + ay_rel
-    # bullet dot at anchor
-    d.ellipse((ax - 7, ay - 7, ax + 7, ay + 7), fill=BANNER_GRAD_FROM, outline=(255, 255, 255), width=2)
-    # curve / connector — simple two-segment polyline
-    mid_x = (ax + label_x) // 2
-    d.line([(ax + 7, ay), (mid_x, ay), (mid_x, ly + 18), (label_x - 10, ly + 18)],
-           fill=BANNER_GRAD_FROM, width=2)
-    # text labels
-    d.text((label_x, ly), zh_txt, fill=(31, 35, 41), font=cf_zh)
-    en_bb = d.textbbox((0, 0), en_txt, font=cf_en)
-    d.text((label_x, ly + 32), en_txt, fill=(107, 114, 128), font=cf_en)
-
-out_path = OUT / "store-03-popup-v134.png"
+out_path = OUT / "store-03-popup-v137.png"
 canvas.save(out_path, "PNG", optimize=True)
 print(f"wrote {out_path} {canvas.size}")
