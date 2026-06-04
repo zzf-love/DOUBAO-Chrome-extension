@@ -133,21 +133,31 @@ async function fullscreenFallback(tab, injectionError) {
   });
 }
 
-// De-bounce flag so mashing Alt+S doesn't pile up overlapping capture chains.
-let captureInProgress = false;
+// De-bounce ONLY the fullscreen-capture path. The normal in-page selection
+// path needs no throttling: content.js is idempotent (__aiExplainerInjected
+// guard) and only fires captureVisibleTab once, after the user finishes
+// dragging. The fullscreen path, by contrast, calls captureVisibleTab on
+// every keypress, which is what blows the per-second quota when a user mashes
+// Alt+S on a page that can't be injected.
+let fullscreenBusy = false;
+
+async function fullscreenFallbackThrottled(tab, injectionError) {
+  if (fullscreenBusy) return;
+  fullscreenBusy = true;
+  setTimeout(() => { fullscreenBusy = false; }, 1200);
+  await fullscreenFallback(tab, injectionError);
+}
 
 async function triggerCapture(tab) {
   if (!tab || !tab.id) return;
-  if (captureInProgress) return;
-  captureInProgress = true;
-  // Release after 1s — long enough to cover the slowest fallback path,
-  // short enough that an intentional re-trigger after a real failure works.
-  setTimeout(() => { captureInProgress = false; }, 1000);
 
   const url = tab.url || "";
   const forceFullscreen = /^(chrome|edge|about|chrome-extension|view-source):/.test(url);
 
   if (!forceFullscreen) {
+    // Fast path — fire immediately, no debounce. Try messaging an
+    // already-injected content script first; that's the common case and
+    // resolves in a few ms.
     try {
       await chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
       return;
@@ -169,11 +179,11 @@ async function triggerCapture(tab) {
       injectionError = err && err.message ? err.message : String(err);
       console.warn("Injection failed, falling back to fullscreen mode:", injectionError);
     }
-    await fullscreenFallback(tab, injectionError);
+    await fullscreenFallbackThrottled(tab, injectionError);
     return;
   }
 
-  await fullscreenFallback(tab);
+  await fullscreenFallbackThrottled(tab);
 }
 
 chrome.commands.onCommand.addListener(async (command) => {

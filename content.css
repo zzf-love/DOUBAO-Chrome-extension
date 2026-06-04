@@ -33,6 +33,8 @@
 .aie-panel {
   --aie-brand-from: #4f8cff;
   --aie-brand-to:   #7a5cff;
+  --aie-header-from: #4f8cff;
+  --aie-header-to:   #7a5cff;
   --aie-bg:         #ffffff;
   --aie-body-bg:    #fafbfc;
   --aie-card-bg:    #ffffff;
@@ -64,6 +66,8 @@
 .aie-panel[data-theme="dark"] {
   --aie-brand-from: #6b8eff;
   --aie-brand-to:   #a78bff;
+  --aie-header-from: #1c2230;
+  --aie-header-to:   #2a2440;
   --aie-bg:         #1c2128;
   --aie-body-bg:    #0f1419;
   --aie-card-bg:    #21262d;
@@ -79,6 +83,8 @@
 .aie-panel[data-theme="sakura"] {
   --aie-brand-from: #f472b6;
   --aie-brand-to:   #c084fc;
+  --aie-header-from: #f472b6;
+  --aie-header-to:   #c084fc;
   --aie-bg:         #ffffff;
   --aie-body-bg:    #fdf2f8;
   --aie-card-bg:    #ffffff;
@@ -97,7 +103,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: linear-gradient(135deg, var(--aie-brand-from), var(--aie-brand-to));
+  background: linear-gradient(135deg, var(--aie-header-from), var(--aie-header-to));
   color: #fff;
   user-select: none;
 }

@@ -3,7 +3,7 @@
 > 在任意网页按 **Alt+S** 拖拽框选，豆包多模态 AI 自动解读截图内容，结果留在右上角浮动面板——不打断浏览。
 
 ![status](https://img.shields.io/badge/Chrome%20Web%20Store-审核中-blue)
-![version](https://img.shields.io/badge/version-1.3.6-green)
+![version](https://img.shields.io/badge/version-1.3.7-green)
 ![manifest](https://img.shields.io/badge/manifest-v3-orange)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
@@ -111,6 +111,7 @@ STORE_LISTING.md      # CWS 商店详情页文案
 
 ## 版本
 
+- **v1.3.7**：去抖只保护全屏回退路径，正常网页框选恢复"秒开"（v1.3.6 误把正常路径也卡了 1 秒）；浮动面板 / 全屏窗口的 Dark 主题顶栏改为深色渐变，跟 popup 一致
 - **v1.3.6**：注入失败 / 截图失败时强制弹出结果窗口显示具体原因，避免用户以为按了没反应反复重按；Alt+S 1 秒去抖防止 Chrome 截图频率上限；`captureVisibleTab` 不再依赖可能失效的 `tab.windowId`
 - **v1.3.5**：浮动解读面板（content.js）和 PDF 全屏窗口（result.html）现在跟随 popup 的皮肤设置，全局换肤一气呵成；移除 Mono 皮肤，保留 Aurora / Dark / Sakura 三套
 - **v1.3.4**：popup 提示区加"自定义"链接，一键跳转 `chrome://extensions/shortcuts` 自行设置快捷键（解决主备两键都冲突的极端场景）
