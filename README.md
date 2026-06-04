@@ -3,7 +3,7 @@
 > 在任意网页按 **Alt+S** 拖拽框选，豆包多模态 AI 自动解读截图内容，结果留在右上角浮动面板——不打断浏览。
 
 ![status](https://img.shields.io/badge/Chrome%20Web%20Store-审核中-blue)
-![version](https://img.shields.io/badge/version-1.3.4-green)
+![version](https://img.shields.io/badge/version-1.3.5-green)
 ![manifest](https://img.shields.io/badge/manifest-v3-orange)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
@@ -111,6 +111,7 @@ STORE_LISTING.md      # CWS 商店详情页文案
 
 ## 版本
 
+- **v1.3.5**：浮动解读面板（content.js）和 PDF 全屏窗口（result.html）现在跟随 popup 的皮肤设置，全局换肤一气呵成；移除 Mono 皮肤，保留 Aurora / Dark / Sakura 三套
 - **v1.3.4**：popup 提示区加"自定义"链接，一键跳转 `chrome://extensions/shortcuts` 自行设置快捷键（解决主备两键都冲突的极端场景）
 - **v1.3.3**：备用快捷键 `Alt+Shift+S` 显示在 popup 提示区，用户不再依赖 hover tooltip 才能发现
 - **v1.3.2**：双快捷键共存——`Alt+S` 主键 + `Alt+Shift+S` 备用键（避免 `Alt+S` 在某些浏览器/网页上无法自动绑定时彻底失灵）

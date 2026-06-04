@@ -83,7 +83,12 @@ async function analyze() {
 }
 
 async function init() {
-  const { pendingCapture } = await chrome.storage.local.get("pendingCapture");
+  const { pendingCapture, theme } = await chrome.storage.local.get([
+    "pendingCapture",
+    "theme",
+  ]);
+  const valid = ["aurora", "dark", "sakura"];
+  document.body.dataset.theme = valid.includes(theme) ? theme : "aurora";
   if (!pendingCapture || !pendingCapture.dataUrl) {
     setResult("没有捕获到截图，请关闭窗口后重新触发 Alt+S。", true);
     $("analyze").disabled = true;

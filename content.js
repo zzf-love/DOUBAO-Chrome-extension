@@ -2,11 +2,30 @@
   if (window.__aiExplainerInjected) return;
   window.__aiExplainerInjected = true;
 
+  const VALID_THEMES = ["aurora", "dark", "sakura"];
+  let currentTheme = "aurora";
   let selecting = false;
   let startX = 0, startY = 0;
   let overlay, box, hint;
   let panel;
   let panelTasks = 0;
+
+  // Load theme from storage and watch for live changes.
+  (async () => {
+    try {
+      const { theme } = await chrome.storage.local.get("theme");
+      if (VALID_THEMES.includes(theme)) currentTheme = theme;
+      if (panel) panel.dataset.theme = currentTheme;
+    } catch (_) { /* storage unavailable; stick with aurora */ }
+  })();
+  try {
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== "local" || !changes.theme) return;
+      const next = changes.theme.newValue;
+      currentTheme = VALID_THEMES.includes(next) ? next : "aurora";
+      if (panel) panel.dataset.theme = currentTheme;
+    });
+  } catch (_) { /* no-op */ }
 
   function createOverlay() {
     overlay = document.createElement("div");
@@ -31,6 +50,7 @@
     if (panel && document.documentElement.contains(panel)) return panel;
     panel = document.createElement("div");
     panel.className = "aie-panel";
+    panel.dataset.theme = currentTheme;
     panel.innerHTML = `
       <div class="aie-panel-header">
         <span class="aie-panel-title">AI 解读</span>

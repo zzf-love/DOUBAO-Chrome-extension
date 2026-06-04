@@ -28,22 +28,66 @@
   pointer-events: none;
 }
 
+/* ====== Floating panel ====== */
+/* Theme tokens scoped to the panel so they don't pollute the host page's CSS. */
 .aie-panel {
+  --aie-brand-from: #4f8cff;
+  --aie-brand-to:   #7a5cff;
+  --aie-bg:         #ffffff;
+  --aie-body-bg:    #fafbfc;
+  --aie-card-bg:    #ffffff;
+  --aie-text:       #1f2329;
+  --aie-text-sec:   #6b7280;
+  --aie-border:     rgba(0,0,0,0.06);
+  --aie-thumb-bd:   rgba(0,0,0,0.08);
+  --aie-err-bg:     #fef3f2;
+  --aie-err-tx:     #d92d20;
+  --aie-shadow:     0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+
   position: fixed;
   top: 12px;
   right: 12px;
   width: 380px;
   max-height: 80vh;
   z-index: 2147483647;
-  background: #ffffff;
-  color: #1f2329;
+  background: var(--aie-bg);
+  color: var(--aie-text);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--aie-shadow);
   font: 13px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.06);
+  border: 1px solid var(--aie-border);
+}
+
+.aie-panel[data-theme="dark"] {
+  --aie-brand-from: #6b8eff;
+  --aie-brand-to:   #a78bff;
+  --aie-bg:         #1c2128;
+  --aie-body-bg:    #0f1419;
+  --aie-card-bg:    #21262d;
+  --aie-text:       #c9d1d9;
+  --aie-text-sec:   #8b949e;
+  --aie-border:     rgba(255,255,255,0.08);
+  --aie-thumb-bd:   rgba(255,255,255,0.1);
+  --aie-err-bg:     #2d0f0f;
+  --aie-err-tx:     #fca5a5;
+  --aie-shadow:     0 12px 40px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.aie-panel[data-theme="sakura"] {
+  --aie-brand-from: #f472b6;
+  --aie-brand-to:   #c084fc;
+  --aie-bg:         #ffffff;
+  --aie-body-bg:    #fdf2f8;
+  --aie-card-bg:    #ffffff;
+  --aie-text:       #500724;
+  --aie-text-sec:   #9d174d;
+  --aie-border:     rgba(244,114,182,0.18);
+  --aie-thumb-bd:   rgba(244,114,182,0.25);
+  --aie-err-bg:     #ffe4e6;
+  --aie-err-tx:     #be123c;
 }
 
 .aie-panel.aie-collapsed .aie-panel-body { display: none; }
@@ -53,7 +97,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: linear-gradient(135deg, #4f8cff, #7a5cff);
+  background: linear-gradient(135deg, var(--aie-brand-from), var(--aie-brand-to));
   color: #fff;
   user-select: none;
 }
@@ -83,12 +127,12 @@
   padding: 10px;
   overflow: auto;
   max-height: calc(80vh - 42px);
-  background: #fafbfc;
+  background: var(--aie-body-bg);
 }
 
 .aie-card {
-  background: #fff;
-  border: 1px solid rgba(0,0,0,0.06);
+  background: var(--aie-card-bg);
+  border: 1px solid var(--aie-border);
   border-radius: 10px;
   padding: 10px;
   margin-bottom: 10px;
@@ -100,13 +144,13 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--aie-text-sec);
   margin-bottom: 6px;
 }
 
 .aie-card-id {
   font-weight: 600;
-  color: #4f8cff;
+  color: var(--aie-brand-from);
 }
 
 .aie-card-status { flex: 1; }
@@ -114,8 +158,8 @@
 .aie-card-spin {
   width: 12px;
   height: 12px;
-  border: 2px solid rgba(79,140,255,0.25);
-  border-top-color: #4f8cff;
+  border: 2px solid color-mix(in srgb, var(--aie-brand-from) 25%, transparent);
+  border-top-color: var(--aie-brand-from);
   border-radius: 50%;
   animation: aie-spin 0.8s linear infinite;
   display: inline-block;
@@ -123,21 +167,19 @@
 
 @keyframes aie-spin { to { transform: rotate(360deg); } }
 
-.aie-card-thumb-wrap {
-  margin: 4px 0 8px;
-}
+.aie-card-thumb-wrap { margin: 4px 0 8px; }
 
 .aie-card-thumb {
   max-width: 100%;
   max-height: 120px;
   border-radius: 6px;
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid var(--aie-thumb-bd);
   display: block;
 }
 
 .aie-card-text {
   font-size: 13px;
-  color: #1f2329;
+  color: var(--aie-text);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -146,8 +188,8 @@
 .aie-card-text p:last-child { margin-bottom: 0; }
 
 .aie-card-text.aie-error {
-  color: #d92d20;
-  background: #fef3f2;
+  color: var(--aie-err-tx);
+  background: var(--aie-err-bg);
   padding: 6px 8px;
   border-radius: 6px;
 }

@@ -1,6 +1,6 @@
 const PRESET_IDS = ["general", "ocr", "translate", "visual", "paper", "code"];
 const CUSTOM_SLOT_COUNT = 3;
-const THEMES = ["aurora", "dark", "sakura", "mono"];
+const THEMES = ["aurora", "dark", "sakura"];
 
 const i18n = (k) => chrome.i18n.getMessage(k) || "";
 
