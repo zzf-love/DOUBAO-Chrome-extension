@@ -2,7 +2,8 @@
 
 > 在任意网页按 **Alt+S** 拖拽框选，豆包多模态 AI 自动解读截图内容，结果留在右上角浮动面板——不打断浏览。
 
-![status](https://img.shields.io/badge/Chrome%20Web%20Store-审核中-blue)
+![cws](https://img.shields.io/badge/Chrome%20Web%20Store-v1.2%20已上架-success)
+![update](https://img.shields.io/badge/v1.3-审核中-blue)
 ![version](https://img.shields.io/badge/version-1.3.7-green)
 ![manifest](https://img.shields.io/badge/manifest-v3-orange)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
@@ -14,34 +15,56 @@
 | 框选任意区域 | AI 浮动面板解读 |
 |---|---|
 | ![](store/store-01.png) | ![](store/store-02.png) |
-| **本地存储设置** | **多次框选累积留存** |
+| **设置（3 套皮肤 + 9 个 Prompt 模板）** | **多次框选累积留存** |
 | ![](store/store-03.png) | ![](store/store-04.png) |
 
 ---
 
 ## 功能
 
-- **快捷键触发框选**：默认 `Alt+S`，也支持点击扩展图标 / 右键菜单 "用 AI 解读这块区域"
+**核心交互**
+- **快捷键触发框选**：主键 `Alt+S`、备用键 `Alt+Shift+S`，都可在 `chrome://extensions/shortcuts` 自定义。也支持点扩展图标 / 右键菜单 "用 AI 解读这块区域"
 - **拖拽框选**：跟系统截图一样的体验，**右键** 或 `Esc` 取消
 - **后台异步解析**：调用 API 期间面板显示 "分析中…"，可继续滚动浏览
 - **多任务面板**：右上角浮动面板可拖动、可折叠、可关闭，每次框选累积一张卡片（缩略图 + 解析文本）
-- **本地存储配置**：API Key / 模型 / Endpoint / 默认 Prompt 都在弹窗里改，存于 `chrome.storage.local`，不上传任何第三方
+
+**Prompt 预设系统**（v1.3 新增）
+- 6 个内置模板药丸一键切换：**通用解读 / 转录文字 / 翻译 / 视觉解析 / 读论文 / 代码解释**
+- 3 个自定义槽存你自己常用的 Prompt
+- "读论文" 自动判断学科方向（CS / 生医 / 物理化学 / 经济 / 心理 / 人文社科）按该领域审稿习惯输出
+
+**3 套皮肤**（v1.3 新增）
+- **Aurora**（默认，蓝紫渐变）/ **Dark**（深色护眼）/ **Sakura**（粉系暖色）
+- popup、浮动面板、PDF 全屏窗口全部同步换肤，已开着的面板也实时跟随
+
+**兼容性**
+- PDF / `chrome://` / 受限页面**自动回退全屏模式**——整页捕获给 AI，照样能用
+- 中英文 UI 跟随浏览器语言自动切换（`_locales/` i18n）
+
+**隐私**
+- 所有设置仅存本地（`chrome.storage.local`），API Key 不上传任何第三方
+- 截图直接从你的浏览器 POST 到你配置的 endpoint，不经过任何中转服务器
+- 不加载远程代码、不收集浏览数据、不使用 Cookie、不做分析
+
+---
 
 ## 适合谁
 
-- 看英文 / 日文 / 代码截图想快速理解
-- 看到图表、错误信息、术语想直接问 AI
-- 不想为了问一个问题切到 ChatGPT 上传图片
+- 看英文 / 日文 / 韩文文档或截图想快速理解、保留原排版
+- 设计师 / 创作者想从一张图提取构图、配色、风格关键词
+- 研究生 / 科研人想快速消化论文截图（图表、公式、结果数据）
+- 程序员看截图代码、报错信息想要 AI 解读
+- 不想为了问一个问题切到 ChatGPT 上传图片的人
 
 ---
 
 ## 安装
 
-### 方式一：Chrome 应用商店（审核中）
+### 方式一：Chrome 应用商店（推荐）
 
-正在审核中，通过后会贴出商店链接。
+**v1.2.0 已上架**，搜索 "AI 截图解读" 或 "Doubao Screenshot Explainer" 即可。v1.3.x 正在审核中，通过后会自动推送给现有用户。
 
-### 方式二：开发者模式（立即可用）
+### 方式二：开发者模式（立即用到最新版）
 
 ```bash
 git clone https://github.com/zzf-love/DOUBAO-Chrome-extension.git
@@ -52,14 +75,17 @@ git clone https://github.com/zzf-love/DOUBAO-Chrome-extension.git
 3. 点 **加载已解压的扩展程序**，选择 `DOUBAO-Chrome-extension/` 目录
 4. 点扩展图标，填入你自己的 [火山方舟 API Key](https://www.volcengine.com/product/ark)（`ark-` 开头）→ 保存
 
+详细的图文步骤见 [INSTALL_GUIDE.md](INSTALL_GUIDE.md)。
+
 ---
 
 ## 使用
 
-1. 在任意网页按 **`Alt+S`**
-2. 鼠标拖拽框选你想问的区域
+1. 在任意网页按 **`Alt+S`**（被占用时按备用键 **`Alt+Shift+S`**）
+2. 鼠标拖拽框选你想问的区域，右键或 `Esc` 取消
 3. 几秒后，右上角浮动面板出现 AI 解读结果
 4. 同一页面可以连续框选多次，每次结果都会作为一张卡片留存
+5. 在 PDF / `chrome://` 等受限页面上按快捷键 → 自动弹"全屏模式"窗口，整页捕获给 AI
 
 ---
 
@@ -82,21 +108,27 @@ Authorization: Bearer <API_KEY>
 }
 ```
 
-模型 / Endpoint 都可在弹窗里改，理论兼容任何 OpenAI Responses 风格的视觉模型 API。
+模型 / Endpoint / Prompt 都可在弹窗里改，理论兼容任何 OpenAI Responses 风格的视觉模型 API。
 
 ---
 
 ## 文件结构
 
 ```
-manifest.json         # MV3 清单（权限、快捷键、host_permissions）
-background.js         # service worker：截屏、调用 AI API
-content.js / .css     # 注入页面：框选 UI、裁剪图像、结果面板
-popup.html / .js      # 设置弹窗
+manifest.json         # MV3 清单（i18n、双快捷键、host_permissions）
+background.js         # service worker：截屏、调用 AI API、PDF 全屏回退
+content.js / .css     # 注入页面：框选 UI、裁剪图像、浮动面板（含主题）
+popup.html / .js      # 设置弹窗（Prompt 预设、皮肤切换、自定义快捷键链接）
+result.html / .js     # PDF / 受限页面的全屏回退窗口
 privacy.html          # 隐私政策页（GitHub Pages 托管）
-icons/                # 16/48/128px 图标
-store/                # CWS 上架素材（4 张截图 + 1 张宣传图）
-STORE_LISTING.md      # CWS 商店详情页文案
+_locales/             # 中英 i18n 字符串（名称、描述、Prompt 模板）
+icons/                # 16 / 48 / 128 px 图标
+store/                # CWS 上架素材（截图 + 宣传图）
+xhs/                  # 小红书 1080×1440 教程图
+scripts/              # 素材生成脚本（Pillow + Playwright）
+STORE_LISTING.md      # CWS 商店详情页文案（zh-CN + en）
+INSTALL_GUIDE.md      # 给小白用户的图文安装指南
+XHS_POSTS.md          # 小红书发布文案模板
 ```
 
 ---
