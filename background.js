@@ -18,13 +18,18 @@ async function getConfig() {
 
 async function captureVisibleTab(windowId) {
   return new Promise((resolve, reject) => {
-    chrome.tabs.captureVisibleTab(windowId, { format: "png" }, (dataUrl) => {
+    // windowId omitted → Chrome captures the current focused window. Passing
+    // a stale tab.windowId from an earlier query causes "No window with id"
+    // when the tab navigated / window changed between query and capture.
+    const args = [{ format: "png" }, (dataUrl) => {
       if (chrome.runtime.lastError) {
         reject(new Error(chrome.runtime.lastError.message));
       } else {
         resolve(dataUrl);
       }
-    });
+    }];
+    if (typeof windowId === "number") args.unshift(windowId);
+    chrome.tabs.captureVisibleTab(...args);
   });
 }
 
@@ -88,20 +93,33 @@ async function callDoubao(imageDataUrl, userPrompt) {
   return out;
 }
 
-async function fullscreenFallback(tab) {
+async function fullscreenFallback(tab, injectionError) {
   // For tabs we can't inject into (PDF viewer, chrome://, restricted file://),
-  // capture the entire visible area and open our own result window so the AI
-  // can still explain what's on screen.
-  let dataUrl;
+  // or when injection silently fails (CSP-strict sites etc.), capture the
+  // entire visible area and open our own result window. If capture itself
+  // fails, still open the window in an error state so the user gets feedback
+  // instead of silent nothing.
+  let dataUrl = null;
+  let captureError = null;
   try {
-    dataUrl = await captureVisibleTab(tab.windowId);
+    // Use current focused window — stale tab.windowId may not exist anymore.
+    dataUrl = await captureVisibleTab();
   } catch (e) {
-    console.error("captureVisibleTab failed:", e);
-    return;
+    captureError = e.message || String(e);
+    // Rate-limit is a transient quota error from rapid Alt+S presses; the
+    // de-bounce in triggerCapture should prevent it, but if one slips
+    // through just drop it silently rather than annoying the user.
+    if (/exceeds the.*quota/i.test(captureError)) {
+      console.warn("captureVisibleTab rate-limited; ignoring this press:", captureError);
+      return;
+    }
+    console.error("captureVisibleTab failed:", captureError);
   }
+
   await chrome.storage.local.set({
     pendingCapture: {
       dataUrl,
+      error: captureError || injectionError || null,
       sourceUrl: tab.url || "",
       sourceTitle: tab.title || "",
       ts: Date.now()
@@ -115,13 +133,18 @@ async function fullscreenFallback(tab) {
   });
 }
 
+// De-bounce flag so mashing Alt+S doesn't pile up overlapping capture chains.
+let captureInProgress = false;
+
 async function triggerCapture(tab) {
   if (!tab || !tab.id) return;
+  if (captureInProgress) return;
+  captureInProgress = true;
+  // Release after 1s — long enough to cover the slowest fallback path,
+  // short enough that an intentional re-trigger after a real failure works.
+  setTimeout(() => { captureInProgress = false; }, 1000);
 
   const url = tab.url || "";
-  // chrome://, edge://, about:, chrome-extension:// are non-injectable.
-  // PDFs served via http(s) load Chrome's internal PDF viewer — injection
-  // throws too, so we let the try/catch below catch that case as well.
   const forceFullscreen = /^(chrome|edge|about|chrome-extension|view-source):/.test(url);
 
   if (!forceFullscreen) {
@@ -130,6 +153,7 @@ async function triggerCapture(tab) {
       return;
     } catch (_) { /* content script not yet injected */ }
 
+    let injectionError = null;
     try {
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -142,8 +166,11 @@ async function triggerCapture(tab) {
       await chrome.tabs.sendMessage(tab.id, { type: "START_SELECTION" });
       return;
     } catch (err) {
-      console.warn("Injection failed, falling back to fullscreen mode:", err);
+      injectionError = err && err.message ? err.message : String(err);
+      console.warn("Injection failed, falling back to fullscreen mode:", injectionError);
     }
+    await fullscreenFallback(tab, injectionError);
+    return;
   }
 
   await fullscreenFallback(tab);

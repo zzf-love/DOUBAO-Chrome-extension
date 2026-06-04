@@ -89,20 +89,37 @@ async function init() {
   ]);
   const valid = ["aurora", "dark", "sakura"];
   document.body.dataset.theme = valid.includes(theme) ? theme : "aurora";
-  if (!pendingCapture || !pendingCapture.dataUrl) {
-    setResult("没有捕获到截图，请关闭窗口后重新触发 Alt+S。", true);
+
+  if (!pendingCapture) {
+    setResult("没有可解读的内容，请关闭窗口后重新触发 Alt+S。", true);
     $("analyze").disabled = true;
+    $("capture").style.display = "none";
     return;
   }
-  captureDataUrl = pendingCapture.dataUrl;
-  $("capture").src = captureDataUrl;
-  $("source").textContent = pendingCapture.sourceTitle
-    ? `${pendingCapture.sourceTitle} — ${pendingCapture.sourceUrl}`
-    : pendingCapture.sourceUrl || "";
+
   // One-shot: clear after we've loaded it so a stale capture doesn't pop up
   // next time the user opens this window directly.
   await chrome.storage.local.remove("pendingCapture");
 
+  $("source").textContent = pendingCapture.sourceTitle
+    ? `${pendingCapture.sourceTitle} — ${pendingCapture.sourceUrl}`
+    : pendingCapture.sourceUrl || "";
+
+  if (!pendingCapture.dataUrl) {
+    // Capture (or injection) failed but we still opened this window so the
+    // user sees what's wrong instead of pressing Alt+S in confusion.
+    const why = pendingCapture.error || "未知原因";
+    const hint = /Cannot access contents|chrome:\/\/|extension manifest/i.test(why)
+      ? "当前页面禁止扩展注入（常见于带严格 CSP 的站点、chrome:// 页面等）。请试试在其他普通网页上使用。"
+      : "可能是浏览器拒绝截屏权限，或当前页面状态不允许截图。可以稍等几秒后重试。";
+    setResult("截图失败：" + why + "\n\n" + hint, true);
+    $("analyze").disabled = true;
+    $("capture").style.display = "none";
+    return;
+  }
+
+  captureDataUrl = pendingCapture.dataUrl;
+  $("capture").src = captureDataUrl;
   // Auto-trigger analysis — user already invoked Alt+S, expects the answer.
   analyze();
 }
